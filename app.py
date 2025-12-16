@@ -6,17 +6,18 @@ st.divider()
 
 # User input
 prompt = st.text_input("Enter your prompt")
-
 st.divider()
 
-# Content type selection
+# Content type selection (no default selection)
 content_type = st.selectbox(
     "Select content type",
-    ["LinkedIn Post", "Email", "Advertisement", "Conversation"]
+    ["LinkedIn Post", "Email", "Advertisement", "Conversation"],
+    index=None,
+    placeholder="Choose a content type"
 )
 
-# Display output
-if prompt:
+# Display output only when both are provided
+if prompt and content_type:
     st.balloons()
 
     st.subheader("User Input Summary")
