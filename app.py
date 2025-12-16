@@ -5,7 +5,7 @@ import google.generativeai as genai
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 # IMPORTANT: use models/ prefix
-model = genai.GenerativeModel("models/gemini-pro")
+model = genai.GenerativeModel("models/gemini-1.5-flash")
 
 st.title("AI System for Personalized Content Creation")
 st.write("Streamlit app is running successfully")
