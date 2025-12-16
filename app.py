@@ -1,5 +1,11 @@
 import streamlit as st
-from langchain_openai import ChatOpenAI
+import google.generativeai as genai
+
+# Configure Gemini
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+
+# Initialize model
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 st.title("AI System for Personalized Content Creation")
 st.write("Streamlit app is running successfully")
@@ -13,13 +19,6 @@ content_type = st.selectbox(
     ["LinkedIn Post", "Email", "Advertisement", "Conversation"]
 )
 
-# Initialize LLM
-llm = ChatOpenAI(
-    api_key=st.secrets["OPENAI_API_KEY"],
-    temperature=0.5
-)
-
-# Simple prompt logic (NO PromptTemplate)
 if prompt:
     st.balloons()
 
@@ -32,8 +31,8 @@ if prompt:
     else:
         final_prompt = f"Write a friendly conversational response about: {prompt}"
 
-    with st.spinner("Generating content..."):
-        response = llm.invoke(final_prompt)
+    with st.spinner("Generating content using Gemini..."):
+        response = model.generate_content(final_prompt)
 
     st.subheader("Generated Content")
-    st.write(response.content)
+    st.write(response.text)
