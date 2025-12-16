@@ -1,38 +1,27 @@
 import streamlit as st
-import google.generativeai as genai
-
-# Configure Gemini
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
-# IMPORTANT: use models/ prefix
-model = genai.GenerativeModel("models/gemini-1.5-flash")
 
 st.title("AI System for Personalized Content Creation")
-st.write("Streamlit app is running successfully")
+st.write("This demo captures user input and content preferences.")
 st.divider()
 
+# User input
 prompt = st.text_input("Enter your prompt")
+
 st.divider()
 
+# Content type selection
 content_type = st.selectbox(
     "Select content type",
     ["LinkedIn Post", "Email", "Advertisement", "Conversation"]
 )
 
+# Display output
 if prompt:
     st.balloons()
 
-    if content_type == "LinkedIn Post":
-        final_prompt = f"Write a professional LinkedIn post about: {prompt}"
-    elif content_type == "Email":
-        final_prompt = f"Write a professional email about: {prompt}"
-    elif content_type == "Advertisement":
-        final_prompt = f"Write a short advertisement copy about: {prompt}"
-    else:
-        final_prompt = f"Write a friendly conversational response about: {prompt}"
+    st.subheader("User Input Summary")
+    st.write("Your prompt:")
+    st.write(prompt)
 
-    with st.spinner("Generating content using Gemini..."):
-        response = model.generate_content(final_prompt)
-
-    st.subheader("Generated Content")
-    st.write(response.text)
+    st.write("Selected content type:")
+    st.write(content_type)
