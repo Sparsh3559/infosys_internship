@@ -25,7 +25,7 @@ st.set_page_config(
 )
 
 # -------------------------------
-# SIDEBAR (≈30%)
+# SIDEBAR (CONTROL PANEL)
 # -------------------------------
 with st.sidebar:
     st.markdown("## ✨ Content Studio")
@@ -48,35 +48,33 @@ with st.sidebar:
 
     tone = st.selectbox(
         "Tone",
-        ["Professional", "Friendly", "Confident", "Conversational", "Minimal"],
+        ["Professional", "Confident", "Friendly", "Conversational"],
         index=0
     )
 
     audience = st.selectbox(
-    "Audience",
-    [
-        "Recruiters / Hiring Managers",
-        "General LinkedIn Audience",
-        "Technical Audience",
-        "Non-technical Audience",
-        "Peers / Students"
-    ],
-    index=0
-)
+        "Audience",
+        [
+            "Recruiters / Hiring Managers",
+            "General LinkedIn Audience",
+            "Technical Audience",
+            "Peers / Students"
+        ],
+        index=0
+    )
 
-purpose = st.selectbox(
-    "Purpose",
-    [
-        "Share an experience",
-        "Showcase skills",
-        "Reflect on learning",
-        "Announce an achievement",
-        "Seek opportunities"
-    ],
-    index=0
-)
+    purpose = st.selectbox(
+        "Purpose",
+        [
+            "Share an experience",
+            "Showcase skills",
+            "Reflect on learning",
+            "Announce an achievement"
+        ],
+        index=0
+    )
 
-word_limit = st.slider(
+    word_limit = st.slider(
         "Length",
         min_value=80,
         max_value=300,
@@ -84,17 +82,36 @@ word_limit = st.slider(
         value=150
     )
 
-st.divider()
+    st.caption("Ideal for LinkedIn-style posts")
 
-generate = st.button("✨ Generate Content", use_container_width=True)
+    st.divider()
+
+    generate = st.button("✨ Generate Content", use_container_width=True)
 
 # -------------------------------
-# MAIN AREA (≈70%)
+# MAIN AREA (EDITOR)
 # -------------------------------
 st.markdown("## 📝 Draft Preview")
 st.caption("Your generated content will appear here")
 
 st.divider()
+
+# Placeholder before generation
+if not generate:
+    st.markdown(
+        """
+        <div style="
+            border:1px dashed #374151;
+            border-radius:12px;
+            padding:40px;
+            text-align:center;
+            color:#9ca3af;
+        ">
+        Adjust the inputs on the left and click <b>Generate Content</b> to see your draft here.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # -------------------------------
 # LOGIC
@@ -103,21 +120,20 @@ if generate:
     if not prompt or not content_type:
         st.warning("Please provide both an idea and content type.")
     else:
-        # Prompt engineering (simple & clean)
-       final_prompt = (
-    f"Write a {tone.lower()} {content_type.lower()} "
-    f"within approximately {word_limit} words.\n"
-    f"Audience: {audience}.\n"
-    f"Purpose: {purpose}.\n"
-    f"Use at most 1–2 subtle, professional emojis if appropriate.\n"
-    f"Place emojis only in the title or at the very end, not inside paragraphs.\n"
-    f"Ensure the content is polished, confident, and well-structured.\n"
-    f"End with a complete sentence.\n"
-    f"Return plain text only. Do not use HTML or markdown.\n\n"
-    f"{prompt}"
-)
+        final_prompt = (
+            f"Write a {tone.lower()} {content_type.lower()} "
+            f"within approximately {word_limit} words.\n"
+            f"Audience: {audience}.\n"
+            f"Purpose: {purpose}.\n"
+            f"Use at most 1–2 subtle, professional emojis if appropriate.\n"
+            f"Place emojis only in the title or at the very end, not inside paragraphs.\n"
+            f"Ensure the content is polished, confident, and well-structured.\n"
+            f"End with a complete sentence.\n"
+            f"Return plain text only. Do not use HTML or markdown.\n\n"
+            f"{prompt}"
+        )
 
-    payload = {
+        payload = {
             "messages": [
                 {
                     "role": "user",
@@ -130,53 +146,52 @@ if generate:
             }
         }
 
-    with st.spinner("Crafting your draft..."):
+        with st.spinner("Crafting your draft..."):
             response = requests.post(
                 BEDROCK_URL,
                 headers=HEADERS,
                 json=payload
             )
 
-    if response.status_code == 200:
+        if response.status_code == 200:
             result = response.json()
             generated_text = result["output"]["message"]["content"][0]["text"]
 
-            # Subtle animation
-            with st.container():
-                time.sleep(0.2)
-                st.markdown(
-    f"""
-    <style>
-    .editor-box {{
-        background: linear-gradient(180deg, #111827, #0f172a);
-        color: #e5e7eb;
-        padding: 24px;
-        border-radius: 14px;
-        border: 1px solid #1f2937;
-        font-size: 16px;
-        line-height: 1.7;
-        white-space: pre-wrap;
-        animation: fadeInUp 0.5s ease-out;
-    }}
+            time.sleep(0.2)
 
-    @keyframes fadeInUp {{
-        from {{
-            opacity: 0;
-            transform: translateY(8px);
-        }}
-        to {{
-            opacity: 1;
-            transform: translateY(0);
-        }}
-    }}
-    </style>
+            st.markdown(
+                f"""
+                <style>
+                .editor-box {{
+                    background: linear-gradient(180deg, #111827, #0f172a);
+                    color: #e5e7eb;
+                    padding: 28px;
+                    border-radius: 14px;
+                    border: 1px solid #1f2937;
+                    font-size: 16px;
+                    line-height: 1.75;
+                    white-space: pre-wrap;
+                    animation: fadeInUp 0.4s ease-out;
+                }}
 
-    <div class="editor-box">
-        {generated_text}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+                @keyframes fadeInUp {{
+                    from {{
+                        opacity: 0;
+                        transform: translateY(6px);
+                    }}
+                    to {{
+                        opacity: 1;
+                        transform: translateY(0);
+                    }}
+                }}
+                </style>
+
+                <div class="editor-box">
+                {generated_text}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
             st.divider()
 
@@ -190,8 +205,9 @@ if generate:
                 )
 
             with col2:
-                st.caption("✨ Tip: Adjust tone or length and regenerate for refinement")
+                st.caption("✨ Tip: Adjust inputs and regenerate to refine")
+            st.balloons()
 
-    else:
+        else:
             st.error("Failed to generate content")
             st.code(response.text)
