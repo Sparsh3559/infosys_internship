@@ -113,19 +113,38 @@ if generate:
             with st.container():
                 time.sleep(0.2)
                 st.markdown(
-                    f"""
-                    <div style="
-                        background-color:#f9fafb;
-                        padding:20px;
-                        border-radius:10px;
-                        border:1px solid #e5e7eb;
-                        animation: fadeIn 0.6s ease-in;
-                    ">
-                    {generated_text}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+    f"""
+    <style>
+    .editor-box {{
+        background: linear-gradient(180deg, #111827, #0f172a);
+        color: #e5e7eb;
+        padding: 24px;
+        border-radius: 14px;
+        border: 1px solid #1f2937;
+        font-size: 16px;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        animation: fadeInUp 0.5s ease-out;
+    }}
+
+    @keyframes fadeInUp {{
+        from {{
+            opacity: 0;
+            transform: translateY(8px);
+        }}
+        to {{
+            opacity: 1;
+            transform: translateY(0);
+        }}
+    }}
+    </style>
+
+    <div class="editor-box">
+        {generated_text}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
             st.divider()
 
