@@ -59,7 +59,7 @@ with st.sidebar:
     tone = st.selectbox(
         "Tone",
         ["Professional", "Confident", "Friendly", "Conversational"],
-        index=0,
+        index=None,
         placeholder="Select tone"
     )
 
@@ -71,7 +71,7 @@ with st.sidebar:
             "Technical Audience",
             "Peers / Students"
         ],
-        index=0,
+        index=None,
         placeholder="Who is this for?"
     )
 
@@ -83,7 +83,7 @@ with st.sidebar:
             "Reflect on learning",
             "Announce an achievement"
         ],
-        index=0,
+        index=None,
         placeholder="Why are you writing this?"
     )
 
