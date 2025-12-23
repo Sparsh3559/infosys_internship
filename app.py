@@ -1,19 +1,14 @@
 import streamlit as st
 import requests
+import json
+import time
 
 # -------------------------------
 # AWS BEDROCK CONFIG
 # -------------------------------
-BEDROCK_API_KEY = st.secrets.get("BEDROCK_API_KEY")
+BEDROCK_API_KEY = st.secrets["BEDROCK_API_KEY"]
 
-if not BEDROCK_API_KEY:
-    st.error("BEDROCK_API_KEY not found. Please add it to Streamlit secrets.")
-    st.stop()
-
-BEDROCK_URL = (
-    "https://bedrock-runtime.us-east-1.amazonaws.com/"
-    "model/amazon.nova-micro-v1:0/invoke"
-)
+BEDROCK_URL = "https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-micro-v1:0/invoke"
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -21,90 +16,131 @@ HEADERS = {
 }
 
 # -------------------------------
-# STREAMLIT UI
+# PAGE CONFIG
 # -------------------------------
-st.title("AI System for Personalized Content Creation")
-st.write("This demo captures user input and content preferences.")
-st.write("Streamlit app is running successfully")
-st.divider()
-
-# Input fields
-prompt = st.text_input("Enter your prompt")
-st.divider()
-
-content_type = st.selectbox(
-    "Select content type",
-    ["LinkedIn Post", "Email", "Advertisement", "Conversation"],
-    index=None,
-    placeholder="Choose a content type"
+st.set_page_config(
+    page_title="AI Content Studio",
+    page_icon="✨",
+    layout="wide"
 )
 
 # -------------------------------
-# PREVIEW SECTION
+# SIDEBAR (≈30%)
 # -------------------------------
-if prompt and content_type:
-    st.balloons()
+with st.sidebar:
+    st.markdown("## ✨ Content Studio")
+    st.caption("Craft clear, professional content effortlessly")
 
-    st.subheader("User Input Summary")
+    st.divider()
 
-    st.text_area(
-        "Your Prompt",
-        value=prompt,
-        height=100,
-        disabled=True
+    prompt = st.text_area(
+        "Describe your idea",
+        placeholder="Example: I participated in a national-level hackathon...",
+        height=120
     )
 
-    st.text_area(
-        "Selected Content Type",
-        value=content_type,
-        height=60,
-        disabled=True
+    content_type = st.selectbox(
+        "Where will this content be used?",
+        ["LinkedIn Post", "Email", "Advertisement", "Conversation"],
+        index=None,
+        placeholder="Select content type"
     )
+
+    tone = st.selectbox(
+        "Tone",
+        ["Professional", "Friendly", "Confident", "Conversational", "Minimal"],
+        index=0
+    )
+
+    word_limit = st.slider(
+        "Length",
+        min_value=80,
+        max_value=300,
+        step=20,
+        value=150
+    )
+
+    st.divider()
+
+    generate = st.button("✨ Generate Content", use_container_width=True)
+
+# -------------------------------
+# MAIN AREA (≈70%)
+# -------------------------------
+st.markdown("## 📝 Draft Preview")
+st.caption("Your generated content will appear here")
+
+st.divider()
 
 # -------------------------------
 # LOGIC
 # -------------------------------
-if prompt and content_type:
-    if content_type == "LinkedIn Post":
-        final_prompt = f"Write a professional LinkedIn post about: {prompt}"
-    elif content_type == "Email":
-        final_prompt = f"Write a professional email about: {prompt}"
-    elif content_type == "Advertisement":
-        final_prompt = f"Write a short advertisement copy about: {prompt}"
+if generate:
+    if not prompt or not content_type:
+        st.warning("Please provide both an idea and content type.")
     else:
-        final_prompt = f"Write a friendly conversational response about: {prompt}"
-
-    # ✅ Correct payload for Amazon Nova
-    payload = {
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {"text": final_prompt}
-                ]
-            }
-        ],
-        "inferenceConfig": {
-            "maxTokens": 300,
-            "temperature": 0.7
-        }
-    }
-
-    with st.spinner("Generating content using AWS Bedrock..."):
-        response = requests.post(
-            BEDROCK_URL,
-            headers=HEADERS,
-            json=payload
+        # Prompt engineering (simple & clean)
+        final_prompt = (
+            f"Write a {tone.lower()} {content_type.lower()} "
+            f"within {word_limit} words about the following:\n\n{prompt}"
         )
 
-    if response.status_code == 200:
-        result = response.json()
+        payload = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [{"text": final_prompt}]
+                }
+            ],
+            "inferenceConfig": {
+                "maxTokens": word_limit,
+                "temperature": 0.7
+            }
+        }
 
-        # ✅ Correct Nova response parsing
-        generated_text = result["output"]["message"]["content"][0]["text"]
+        with st.spinner("Crafting your draft..."):
+            response = requests.post(
+                BEDROCK_URL,
+                headers=HEADERS,
+                json=payload
+            )
 
-        st.subheader("Generated Content")
-        st.write(generated_text)
-    else:
-        st.error("Failed to generate content")
-        st.code(response.text)
+        if response.status_code == 200:
+            result = response.json()
+            generated_text = result["output"]["message"]["content"][0]["text"]
+
+            # Subtle animation
+            with st.container():
+                time.sleep(0.2)
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color:#f9fafb;
+                        padding:20px;
+                        border-radius:10px;
+                        border:1px solid #e5e7eb;
+                        animation: fadeIn 0.6s ease-in;
+                    ">
+                    {generated_text}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            st.divider()
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.download_button(
+                    "📄 Copy Content",
+                    generated_text,
+                    file_name="generated_content.txt"
+                )
+
+            with col2:
+                st.caption("✨ Tip: Adjust tone or length and regenerate for refinement")
+
+        else:
+            st.error("Failed to generate content")
+            st.code(response.text)
