@@ -60,6 +60,7 @@ with st.sidebar:
         "Tone",
         ["Professional", "Confident", "Friendly", "Conversational"],
         index=0
+        placeholder="Select tone"
     )
 
     audience = st.selectbox(
@@ -71,6 +72,7 @@ with st.sidebar:
             "Peers / Students"
         ],
         index=0
+        placeholder="Who is this for?"
     )
 
     purpose = st.selectbox(
@@ -82,10 +84,11 @@ with st.sidebar:
             "Announce an achievement"
         ],
         index=0
+        placeholder="Why are you writing this?"
     )
 
     word_limit = st.slider(
-        "Length (words)",
+        "What should be the word length ?",
         min_value=80,
         max_value=300,
         step=20,
