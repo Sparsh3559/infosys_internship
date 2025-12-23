@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
-import json
 import time
+import re
 
 # -------------------------------
 # AWS BEDROCK CONFIG
@@ -25,11 +25,21 @@ st.set_page_config(
 )
 
 # -------------------------------
-# SIDEBAR (CONTROL PANEL)
+# UTILITY
+# -------------------------------
+def clean_model_output(text: str) -> str:
+    # Remove any HTML tags the model may generate
+    text = re.sub(r"</?[^>]+>", "", text)
+    # Extra safety for stray brackets
+    text = text.replace("<", "").replace(">", "")
+    return text.strip()
+
+# -------------------------------
+# SIDEBAR (INPUTS)
 # -------------------------------
 with st.sidebar:
     st.markdown("## ✨ Content Studio")
-    st.caption("Craft clear, professional content effortlessly")
+    st.caption("Create clear, professional content with intent")
 
     st.divider()
 
@@ -40,10 +50,10 @@ with st.sidebar:
     )
 
     content_type = st.selectbox(
-        "Where will this content be used?",
+        "Content type",
         ["LinkedIn Post", "Email", "Advertisement", "Conversation"],
         index=None,
-        placeholder="Select content type"
+        placeholder="Select where this will be used"
     )
 
     tone = st.selectbox(
@@ -75,28 +85,28 @@ with st.sidebar:
     )
 
     word_limit = st.slider(
-        "Length",
+        "Length (words)",
         min_value=80,
         max_value=300,
         step=20,
         value=150
     )
 
-    st.caption("Ideal for LinkedIn-style posts")
+    st.caption("Ideal for short professional drafts")
 
     st.divider()
 
     generate = st.button("✨ Generate Content", use_container_width=True)
 
 # -------------------------------
-# MAIN AREA (EDITOR)
+# MAIN AREA
 # -------------------------------
 st.markdown("## 📝 Draft Preview")
-st.caption("Your generated content will appear here")
+st.caption("Your generated draft will appear here")
 
 st.divider()
 
-# Placeholder before generation
+# Placeholder
 if not generate:
     st.markdown(
         """
@@ -107,14 +117,14 @@ if not generate:
             text-align:center;
             color:#9ca3af;
         ">
-        Adjust the inputs on the left and click <b>Generate Content</b> to see your draft here.
+        Fill the inputs on the left and click <b>Generate Content</b>.
         </div>
         """,
         unsafe_allow_html=True
     )
 
 # -------------------------------
-# LOGIC
+# GENERATION LOGIC
 # -------------------------------
 if generate:
     if not prompt or not content_type:
@@ -126,9 +136,9 @@ if generate:
             f"Audience: {audience}.\n"
             f"Purpose: {purpose}.\n"
             f"Use at most 1–2 subtle, professional emojis if appropriate.\n"
-            f"Place emojis only in the title or at the very end, not inside paragraphs.\n"
-            f"Ensure the content is polished, confident, and well-structured.\n"
-            f"End with a complete sentence.\n"
+            f"Place emojis only in the title or at the very end.\n"
+            f"Ensure the content is polished, confident, and complete.\n"
+            f"End with a full sentence.\n"
             f"Return plain text only. Do not use HTML or markdown.\n\n"
             f"{prompt}"
         )
@@ -155,10 +165,12 @@ if generate:
 
         if response.status_code == 200:
             result = response.json()
-            generated_text = result["output"]["message"]["content"][0]["text"]
+            raw_text = result["output"]["message"]["content"][0]["text"]
+            generated_text = clean_model_output(raw_text)
 
             time.sleep(0.2)
 
+            # Editor-style output
             st.markdown(
                 f"""
                 <style>
@@ -205,7 +217,9 @@ if generate:
                 )
 
             with col2:
-                st.caption("✨ Tip: Adjust inputs and regenerate to refine")
+                st.caption("✨ Adjust inputs and regenerate to refine")
+
+            # Celebration at the end
             st.balloons()
 
         else:
