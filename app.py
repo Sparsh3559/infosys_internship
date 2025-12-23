@@ -52,7 +52,31 @@ with st.sidebar:
         index=0
     )
 
-    word_limit = st.slider(
+    audience = st.selectbox(
+    "Audience",
+    [
+        "Recruiters / Hiring Managers",
+        "General LinkedIn Audience",
+        "Technical Audience",
+        "Non-technical Audience",
+        "Peers / Students"
+    ],
+    index=0
+)
+
+purpose = st.selectbox(
+    "Purpose",
+    [
+        "Share an experience",
+        "Showcase skills",
+        "Reflect on learning",
+        "Announce an achievement",
+        "Seek opportunities"
+    ],
+    index=0
+)
+
+word_limit = st.slider(
         "Length",
         min_value=80,
         max_value=300,
@@ -60,9 +84,9 @@ with st.sidebar:
         value=150
     )
 
-    st.divider()
+st.divider()
 
-    generate = st.button("✨ Generate Content", use_container_width=True)
+generate = st.button("✨ Generate Content", use_container_width=True)
 
 # -------------------------------
 # MAIN AREA (≈70%)
@@ -80,12 +104,20 @@ if generate:
         st.warning("Please provide both an idea and content type.")
     else:
         # Prompt engineering (simple & clean)
-        final_prompt = (
-            f"Write a {tone.lower()} {content_type.lower()} "
-            f"within {word_limit} words about the following:\n\n{prompt}"
-        )
+       final_prompt = (
+    f"Write a {tone.lower()} {content_type.lower()} "
+    f"within approximately {word_limit} words.\n"
+    f"Audience: {audience}.\n"
+    f"Purpose: {purpose}.\n"
+    f"Use at most 1–2 subtle, professional emojis if appropriate.\n"
+    f"Place emojis only in the title or at the very end, not inside paragraphs.\n"
+    f"Ensure the content is polished, confident, and well-structured.\n"
+    f"End with a complete sentence.\n"
+    f"Return plain text only. Do not use HTML or markdown.\n\n"
+    f"{prompt}"
+)
 
-        payload = {
+    payload = {
             "messages": [
                 {
                     "role": "user",
@@ -93,19 +125,19 @@ if generate:
                 }
             ],
             "inferenceConfig": {
-                "maxTokens": word_limit,
+                "maxTokens": word_limit + 50,
                 "temperature": 0.7
             }
         }
 
-        with st.spinner("Crafting your draft..."):
+    with st.spinner("Crafting your draft..."):
             response = requests.post(
                 BEDROCK_URL,
                 headers=HEADERS,
                 json=payload
             )
 
-        if response.status_code == 200:
+    if response.status_code == 200:
             result = response.json()
             generated_text = result["output"]["message"]["content"][0]["text"]
 
@@ -160,6 +192,6 @@ if generate:
             with col2:
                 st.caption("✨ Tip: Adjust tone or length and regenerate for refinement")
 
-        else:
+    else:
             st.error("Failed to generate content")
             st.code(response.text)
