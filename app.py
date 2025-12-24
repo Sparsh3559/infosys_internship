@@ -112,20 +112,64 @@ st.divider()
 # Placeholder
 if not generate:
     st.markdown(
-        """
-        <div style="
-            border:1px dashed #374151;
-            border-radius:12px;
-            padding:40px;
-            text-align:center;
-            color:#9ca3af;
-        ">
-        Fill the inputs on the left and click <b>Generate Content</b>.
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """
+    <style>
+    /* ===== GLOBAL BACKGROUND ===== */
+    html, body, [data-testid="stApp"] {
+        background-color: #020617;
+        color: #e5e7eb;
+    }
 
+    /* ===== SIDEBAR FULL DARK ===== */
+    [data-testid="stSidebar"] {
+        background-color: #020617;
+    }
+
+    [data-testid="stSidebar"] > div:first-child {
+        background-color: #020617;
+    }
+
+    /* Remove any inner gray blocks */
+    section[data-testid="stSidebar"] * {
+        background-color: transparent !important;
+    }
+
+    /* ===== MAIN CONTENT AREA ===== */
+    .block-container {
+        background-color: #020617;
+    }
+
+    /* Inputs */
+    textarea, input, select {
+        background-color: #020617 !important;
+        color: #e5e7eb !important;
+        border: 1px solid #1f2937 !important;
+    }
+
+    /* Buttons */
+    button {
+        background-color: #020617 !important;
+        color: #e5e7eb !important;
+        border: 1px solid #1f2937 !important;
+    }
+
+    button:hover {
+        border-color: #38bdf8 !important;
+    }
+
+    /* Sliders */
+    .stSlider > div {
+        background-color: #020617 !important;
+    }
+
+    /* Dividers */
+    hr {
+        border-color: #1f2937;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 # -------------------------------
 # GENERATION LOGIC
 # -------------------------------
