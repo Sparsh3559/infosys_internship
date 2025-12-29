@@ -1,21 +1,28 @@
-import smtplib
-from email.message import EmailMessage
+from datetime import datetime, timedelta
+from jose import jwt
+from fastapi import HTTPException
+import os
 
-SMTP_EMAIL = "your_email@gmail.com"
-SMTP_PASSWORD = "your_app_password"
-
-
-if not SMTP_EMAIL or not SMTP_PASSWORD:
-    raise RuntimeError("SMTP_EMAIL or SMTP_PASSWORD not set")
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = "HS256"
 
 
-def send_magic_link(email: str, link: str):
-    msg = EmailMessage()
-    msg["Subject"] = "Your Login Link"
-    msg["From"] = SMTP_EMAIL
-    msg["To"] = email
-    msg.set_content(f"Click to login:\n{link}")
+def create_magic_token(email: str, purpose: str):
+    return jwt.encode(
+        {
+            "sub": email,
+            "purpose": purpose,
+            "exp": datetime.utcnow() + timedelta(minutes=10)
+        },
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
 
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(SMTP_EMAIL, SMTP_PASSWORD)
-        server.send_message(msg)
+
+def verify_magic_token(token: str, purpose: str):
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+    if payload.get("purpose") != purpose:
+        raise HTTPException(status_code=400, detail="Invalid token purpose")
+
+    return payload
