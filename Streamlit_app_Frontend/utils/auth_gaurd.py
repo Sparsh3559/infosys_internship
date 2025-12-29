@@ -1,6 +1,7 @@
 import streamlit as st
-import requests
 
 def protect():
-    if "token" not in st.session_state:
-        st.switch_page("pages/2_Login.py")
+    # Check JWT in session
+    if "jwt" not in st.session_state:
+        st.warning("Please login to continue")
+        st.switch_page("Login.py")

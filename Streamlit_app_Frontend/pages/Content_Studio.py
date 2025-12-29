@@ -2,9 +2,19 @@ import streamlit as st
 import requests
 import time
 import re
+import sys
+import os
+# -------------------------------------------------
+# Fix imports for Streamlit Cloud
+# -------------------------------------------------
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 from utils.auth_guard import protect
 
-protect()
+# -------------------------------------------------
+# TEMP: DISABLE AUTH FOR FIRST DEPLOY
+# -------------------------------------------------
+# protect()
 
 # -------------------------------
 # AWS BEDROCK CONFIG
