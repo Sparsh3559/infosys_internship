@@ -2,6 +2,9 @@ import streamlit as st
 import requests
 import time
 import re
+from utils.auth_guard import protect
+
+protect()
 
 # -------------------------------
 # AWS BEDROCK CONFIG
