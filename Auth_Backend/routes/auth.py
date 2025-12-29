@@ -11,12 +11,16 @@ from auth.email import send_magic_link
 router = APIRouter()
 
 # --------------------------------------------------
-# ENVIRONMENT
+# ENVIRONMENT VARIABLES
 # --------------------------------------------------
-APP_URL = os.getenv("APP_URL")  # e.g. https://infosys-internship-backend.onrender.com
+APP_URL = os.getenv("APP_URL")              # Backend URL
+FRONTEND_URL = os.getenv("FRONTEND_URL")    # Streamlit URL
 
 if not APP_URL:
     raise RuntimeError("APP_URL environment variable is not set")
+
+if not FRONTEND_URL:
+    raise RuntimeError("FRONTEND_URL environment variable is not set")
 
 # --------------------------------------------------
 # DATABASE DEPENDENCY
@@ -46,9 +50,10 @@ def register(name: str, email: str, db: Session = Depends(get_db)):
     db.commit()
 
     token = create_magic_token(email=email, purpose="verify")
-    verify_link = f"{APP_URL}/verify?token={token}"
 
-    # ✅ FIXED: positional args only
+    # 🔑 Email must redirect to FRONTEND
+    verify_link = f"{FRONTEND_URL}/?page=verify&token={token}"
+
     send_magic_link(
         email,
         verify_link,
@@ -73,9 +78,9 @@ def login(email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email not verified")
 
     token = create_magic_token(email=email, purpose="login")
-    login_link = f"{APP_URL}/login/verify?token={token}"
 
-    # ✅ FIXED
+    login_link = f"{FRONTEND_URL}/?page=login&token={token}"
+
     send_magic_link(
         email,
         login_link,
@@ -103,13 +108,15 @@ def verify_email(token: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
 
     if user.is_verified:
-        return {"message": "Email already verified. Please log in."}
+        return {
+            "message": "Email already verified"
+        }
 
     user.is_verified = True
     db.commit()
 
     return {
-        "message": "Email verified successfully. You can now log in."
+        "message": "Email verified successfully"
     }
 
 # --------------------------------------------------
