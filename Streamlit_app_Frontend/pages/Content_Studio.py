@@ -4,17 +4,32 @@ import time
 import re
 import sys
 import os
-# -------------------------------------------------
-# Fix imports for Streamlit Cloud
-# -------------------------------------------------
+# -------------------------------
+# PAGE CONFIG + HIDE SIDEBAR
+# -------------------------------
+st.set_page_config(layout="wide")
+
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] { display: none; }
+        [data-testid="stSidebarNav"] { display: none; }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# -------------------------------
+# FIX IMPORT PATH
+# -------------------------------
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from utils.auth_guard import protect
 
-# -------------------------------------------------
-# TEMP: DISABLE AUTH FOR FIRST DEPLOY
-# -------------------------------------------------
-# protect()
+# -------------------------------
+# ENABLE AUTH (NOW SAFE)
+# -------------------------------
+protect()
 
 # -------------------------------
 # AWS BEDROCK CONFIG

@@ -1,7 +1,6 @@
 import streamlit as st
 
 def protect():
-    # Check JWT in session
+    # User must be authenticated
     if "jwt" not in st.session_state:
-        st.warning("Please login to continue")
-        st.switch_page("Login.py")
+        st.switch_page("pages/Login.py")

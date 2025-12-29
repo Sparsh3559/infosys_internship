@@ -1,10 +1,8 @@
 import streamlit as st
 
-# -------------------------------
-# PAGE CONFIG + HIDE SIDEBAR
-# -------------------------------
 st.set_page_config(layout="wide")
 
+# Hide sidebar completely
 st.markdown(
     """
     <style>
@@ -15,10 +13,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# -------------------------------
-# ROUTER ONLY (NO UI)
-# -------------------------------
+# Router (NO UI here)
 if "jwt" in st.session_state:
     st.switch_page("pages/Content_Studio.py")
+    st.stop()
 else:
     st.switch_page("pages/Register.py")
+    st.stop()
