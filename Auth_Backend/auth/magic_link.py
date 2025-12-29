@@ -4,6 +4,9 @@ from jose import jwt
 MAGIC_SECRET = "MAGIC_LINK_SECRET"
 ALGORITHM = "HS256"
 
+if not MAGIC_SECRET:
+    raise RuntimeError("MAGIC_LINK_SECRET environment variable not set")
+
 def create_magic_token(email: str):
     payload = {
         "sub": email,

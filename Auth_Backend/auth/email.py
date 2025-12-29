@@ -4,6 +4,11 @@ from email.message import EmailMessage
 SMTP_EMAIL = "your_email@gmail.com"
 SMTP_PASSWORD = "your_app_password"
 
+
+if not SMTP_EMAIL or not SMTP_PASSWORD:
+    raise RuntimeError("SMTP_EMAIL or SMTP_PASSWORD not set")
+
+
 def send_magic_link(email: str, link: str):
     msg = EmailMessage()
     msg["Subject"] = "Your Login Link"

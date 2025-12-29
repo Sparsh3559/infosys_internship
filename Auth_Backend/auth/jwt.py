@@ -4,6 +4,10 @@ from jose import jwt
 SECRET_KEY = "CHANGE_THIS_SECRET"
 ALGORITHM = "HS256"
 
+
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY environment variable not set")
+
 def create_jwt(email: str):
     payload = {
         "sub": email,
