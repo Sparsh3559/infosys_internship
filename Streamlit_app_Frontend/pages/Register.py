@@ -1,6 +1,18 @@
 import streamlit as st
 import requests
 
+st.set_page_config(layout="wide")
+
+st.markdown(
+    """
+    <style>
+        [data-testid="stSidebar"] { display: none; }
+        [data-testid="stSidebarNav"] { display: none; }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 API_BASE = "https://infosys-internship-backend.onrender.com"
 
 st.title("📝 Register")
