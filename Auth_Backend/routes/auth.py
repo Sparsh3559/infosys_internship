@@ -29,7 +29,7 @@ def get_db():
         db.close()
 
 # --------------------------------------------------
-# REGISTER (FIRST TIME USER)
+# REGISTER (FIRST-TIME USER)
 # --------------------------------------------------
 @router.post("/register")
 def register(name: str, email: str, db: Session = Depends(get_db)):
@@ -48,10 +48,11 @@ def register(name: str, email: str, db: Session = Depends(get_db)):
     token = create_magic_token(email=email, purpose="verify")
     verify_link = f"{APP_URL}/verify?token={token}"
 
+    # ✅ FIXED: positional args only
     send_magic_link(
-        to_email=email,
-        link=verify_link,
-        purpose="verify"
+        email,
+        verify_link,
+        "verify"
     )
 
     return {
@@ -74,10 +75,11 @@ def login(email: str, db: Session = Depends(get_db)):
     token = create_magic_token(email=email, purpose="login")
     login_link = f"{APP_URL}/login/verify?token={token}"
 
+    # ✅ FIXED
     send_magic_link(
-        to_email=email,
-        link=login_link,
-        purpose="login"
+        email,
+        login_link,
+        "login"
     )
 
     return {

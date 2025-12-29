@@ -1,28 +1,31 @@
-import os
 import resend
+import os
 
 resend.api_key = os.getenv("RESEND_API_KEY")
 
-FROM_EMAIL = os.getenv("FROM_EMAIL")
-
+FROM_EMAIL = "onboarding@resend.dev"
 
 def send_magic_link(email: str, link: str, purpose: str):
     """
-    Sends a magic link email using Resend (HTTPS-based, Render-safe)
+    Sends a magic link email using Resend.
+    purpose: 'verify' | 'login'
     """
 
-    subject = (
-        "Verify your email"
-        if purpose == "verify"
-        else "Your login magic link"
-    )
-
-    html = f"""
-        <p>Hello,</p>
-        <p>Click the link below to continue:</p>
-        <p><a href="{link}">{link}</a></p>
-        <p>This link expires in 10 minutes.</p>
-    """
+    if purpose == "verify":
+        subject = "Verify your email"
+        html = f"""
+        <p>Welcome 👋</p>
+        <p>Please verify your email by clicking the link below:</p>
+        <p><a href="{link}">Verify Email</a></p>
+        """
+    elif purpose == "login":
+        subject = "Your magic login link"
+        html = f"""
+        <p>Click the link below to log in:</p>
+        <p><a href="{link}">Log in</a></p>
+        """
+    else:
+        raise ValueError("Invalid email purpose")
 
     resend.Emails.send({
         "from": FROM_EMAIL,
