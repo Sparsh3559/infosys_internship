@@ -1,28 +1,32 @@
-from datetime import datetime, timedelta
-from jose import jwt
-from fastapi import HTTPException
 import os
+import resend
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
+resend.api_key = os.getenv("RESEND_API_KEY")
+
+FROM_EMAIL = os.getenv("FROM_EMAIL")
 
 
-def create_magic_token(email: str, purpose: str):
-    return jwt.encode(
-        {
-            "sub": email,
-            "purpose": purpose,
-            "exp": datetime.utcnow() + timedelta(minutes=10)
-        },
-        SECRET_KEY,
-        algorithm=ALGORITHM
+def send_magic_link(email: str, link: str, purpose: str):
+    """
+    Sends a magic link email using Resend (HTTPS-based, Render-safe)
+    """
+
+    subject = (
+        "Verify your email"
+        if purpose == "verify"
+        else "Your login magic link"
     )
 
+    html = f"""
+        <p>Hello,</p>
+        <p>Click the link below to continue:</p>
+        <p><a href="{link}">{link}</a></p>
+        <p>This link expires in 10 minutes.</p>
+    """
 
-def verify_magic_token(token: str, purpose: str):
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-
-    if payload.get("purpose") != purpose:
-        raise HTTPException(status_code=400, detail="Invalid token purpose")
-
-    return payload
+    resend.Emails.send({
+        "from": FROM_EMAIL,
+        "to": email,
+        "subject": subject,
+        "html": html
+    })
