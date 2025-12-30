@@ -6,35 +6,27 @@ import sys
 import os
 
 # -------------------------------
-# PAGE CONFIG + HIDE SIDEBAR
+# PAGE CONFIG
 # -------------------------------
-
-
-st.markdown(
-    """
-    <style>
-        [data-testid="stSidebar"] { display: none; }
-        [data-testid="stSidebarNav"] { display: none; }
-    </style>
-    """,
-    unsafe_allow_html=True
+st.set_page_config(
+    page_title="AI Content Studio",
+    page_icon="✨",
+    layout="wide"
 )
 
 # -------------------------------
-# FIX IMPORT PATH (ROBUST)
+# FIX IMPORT PATH
 # -------------------------------
-
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from utils.auth_gaurd import protect
+from utils.auth_guard import protect
 
 # -------------------------------
 # ENABLE AUTH
 # -------------------------------
 protect()
-
 # -------------------------------
 # AWS BEDROCK CONFIG
 # -------------------------------
