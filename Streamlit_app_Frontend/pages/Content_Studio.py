@@ -6,7 +6,7 @@ import sys
 import os
 
 # -------------------------------
-# PAGE CONFIG
+# PAGE CONFIG (Must be first!)
 # -------------------------------
 st.set_page_config(
     page_title="AI Content Studio",
@@ -27,26 +27,28 @@ from utils.auth_gaurd import protect
 # ENABLE AUTH
 # -------------------------------
 protect()
+
+# -------------------------------
+# HIDE DEFAULT PAGE NAVIGATION
+# -------------------------------
+st.markdown("""
+    <style>
+        [data-testid="stSidebarNav"] {
+            display: none;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # -------------------------------
 # AWS BEDROCK CONFIG
 # -------------------------------
 BEDROCK_API_KEY = st.secrets["BEDROCK_API_KEY"]
-
 BEDROCK_URL = "https://bedrock-runtime.us-east-1.amazonaws.com/model/amazon.nova-micro-v1:0/invoke"
 
 HEADERS = {
     "Content-Type": "application/json",
     "Authorization": f"Bearer {BEDROCK_API_KEY}"
 }
-
-# -------------------------------
-# PAGE CONFIG
-# -------------------------------
-st.set_page_config(
-    page_title="AI Content Studio",
-    page_icon="✨",
-    layout="wide"
-)
 
 # -------------------------------
 # UTILITY
@@ -57,6 +59,66 @@ def clean_model_output(text: str) -> str:
     # Extra safety for stray brackets
     text = text.replace("<", "").replace(">", "")
     return text.strip()
+
+# -------------------------------
+# GLOBAL STYLING
+# -------------------------------
+st.markdown("""
+    <style>
+    /* ===== GLOBAL BACKGROUND ===== */
+    html, body, [data-testid="stApp"] {
+        background-color: #020617;
+        color: #e5e7eb;
+    }
+
+    /* ===== SIDEBAR FULL DARK ===== */
+    [data-testid="stSidebar"] {
+        background-color: #020617;
+    }
+
+    [data-testid="stSidebar"] > div:first-child {
+        background-color: #020617;
+    }
+
+    /* Remove any inner gray blocks */
+    section[data-testid="stSidebar"] * {
+        background-color: transparent !important;
+    }
+
+    /* ===== MAIN CONTENT AREA ===== */
+    .block-container {
+        background-color: #020617;
+    }
+
+    /* Inputs */
+    textarea, input, select {
+        background-color: #020617 !important;
+        color: #e5e7eb !important;
+        border: 1px solid #1f2937 !important;
+    }
+
+    /* Buttons */
+    button {
+        background-color: #020617 !important;
+        color: #e5e7eb !important;
+        border: 1px solid #1f2937 !important;
+    }
+
+    button:hover {
+        border-color: #38bdf8 !important;
+    }
+
+    /* Sliders */
+    .stSlider > div {
+        background-color: #020617 !important;
+    }
+
+    /* Dividers */
+    hr {
+        border-color: #1f2937;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # -------------------------------
 # SIDEBAR (INPUTS)
@@ -133,67 +195,6 @@ st.caption("Your generated draft will appear here")
 
 st.divider()
 
-# Placeholder
-if not generate:
-    st.markdown(
-    """
-    <style>
-    /* ===== GLOBAL BACKGROUND ===== */
-    html, body, [data-testid="stApp"] {
-        background-color: #020617;
-        color: #e5e7eb;
-    }
-
-    /* ===== SIDEBAR FULL DARK ===== */
-    [data-testid="stSidebar"] {
-        background-color: #020617;
-    }
-
-    [data-testid="stSidebar"] > div:first-child {
-        background-color: #020617;
-    }
-
-    /* Remove any inner gray blocks */
-    section[data-testid="stSidebar"] * {
-        background-color: transparent !important;
-    }
-
-    /* ===== MAIN CONTENT AREA ===== */
-    .block-container {
-        background-color: #020617;
-    }
-
-    /* Inputs */
-    textarea, input, select {
-        background-color: #020617 !important;
-        color: #e5e7eb !important;
-        border: 1px solid #1f2937 !important;
-    }
-
-    /* Buttons */
-    button {
-        background-color: #020617 !important;
-        color: #e5e7eb !important;
-        border: 1px solid #1f2937 !important;
-    }
-
-    button:hover {
-        border-color: #38bdf8 !important;
-    }
-
-    /* Sliders */
-    .stSlider > div {
-        background-color: #020617 !important;
-    }
-
-    /* Dividers */
-    hr {
-        border-color: #1f2937;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 # -------------------------------
 # GENERATION LOGIC
 # -------------------------------
