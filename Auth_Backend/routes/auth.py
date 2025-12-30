@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from fastapi.responses import RedirectResponse
 import os
+import urllib.parse
 
 from database import SessionLocal
 from models import User
@@ -14,13 +16,10 @@ router = APIRouter()
 # ENVIRONMENT VARIABLES
 # --------------------------------------------------
 APP_URL = os.getenv("APP_URL")              # Backend URL
-FRONTEND_URL = os.getenv("FRONTEND_URL")    # Streamlit URL
+FRONTEND_URL = os.getenv("FRONTEND_URL")    # Streamlit App URL
 
-if not APP_URL:
-    raise RuntimeError("APP_URL environment variable is not set")
-
-if not FRONTEND_URL:
-    raise RuntimeError("FRONTEND_URL environment variable is not set")
+if not APP_URL or not FRONTEND_URL:
+    raise RuntimeError("APP_URL or FRONTEND_URL not set")
 
 # --------------------------------------------------
 # DATABASE DEPENDENCY
@@ -33,12 +32,11 @@ def get_db():
         db.close()
 
 # --------------------------------------------------
-# REGISTER (FIRST-TIME USER)
+# REGISTER
 # --------------------------------------------------
 @router.post("/register")
 def register(name: str, email: str, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.email == email).first()
-    if existing:
+    if db.query(User).filter(User.email == email).first():
         raise HTTPException(status_code=400, detail="User already exists")
 
     user = User(
@@ -49,20 +47,35 @@ def register(name: str, email: str, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
 
-    token = create_magic_token(email=email, purpose="verify")
+    token = create_magic_token(email, "verify")
+    verify_link = f"{APP_URL}/verify?token={token}"
 
-    # 🔑 Email must redirect to FRONTEND
-    verify_link = f"{FRONTEND_URL}/?page=verify&token={token}"
+    send_magic_link(email, verify_link, "verify")
 
-    send_magic_link(
-        email,
-        verify_link,
-        "verify"
+    return {"message": "Verification email sent"}
+
+# --------------------------------------------------
+# VERIFY EMAIL
+# --------------------------------------------------
+@router.get("/verify")
+def verify_email(token: str, db: Session = Depends(get_db)):
+    try:
+        payload = verify_magic_token(token, "verify")
+        email = payload["sub"]
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.is_verified = True
+    db.commit()
+
+    return RedirectResponse(
+        url=f"{FRONTEND_URL}/Verify?status=verified",
+        status_code=302
     )
-
-    return {
-        "message": "Verification email sent. Please check your inbox."
-    }
 
 # --------------------------------------------------
 # LOGIN (MAGIC LINK)
@@ -72,67 +85,33 @@ def login(email: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not registered")
 
     if not user.is_verified:
         raise HTTPException(status_code=400, detail="Email not verified")
 
-    token = create_magic_token(email=email, purpose="login")
+    token = create_magic_token(email, "login")
+    login_link = f"{APP_URL}/login/verify?token={token}"
 
-    login_link = f"{FRONTEND_URL}/?page=login&token={token}"
+    send_magic_link(email, login_link, "login")
 
-    send_magic_link(
-        email,
-        login_link,
-        "login"
-    )
-
-    return {
-        "message": "Login link sent. Please check your email."
-    }
+    return {"message": "Login link sent"}
 
 # --------------------------------------------------
-# VERIFY EMAIL (FROM REGISTER MAIL)
-# --------------------------------------------------
-@router.get("/verify")
-def verify_email(token: str, db: Session = Depends(get_db)):
-    try:
-        payload = verify_magic_token(token, purpose="verify")
-        email = payload["sub"]
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid or expired token")
-
-    user = db.query(User).filter(User.email == email).first()
-
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    if user.is_verified:
-        return {
-            "message": "Email already verified"
-        }
-
-    user.is_verified = True
-    db.commit()
-
-    return {
-        "message": "Email verified successfully"
-    }
-
-# --------------------------------------------------
-# VERIFY LOGIN (ISSUE JWT)
+# VERIFY LOGIN → ISSUE JWT → REDIRECT TO FRONTEND
 # --------------------------------------------------
 @router.get("/login/verify")
 def verify_login(token: str):
     try:
-        payload = verify_magic_token(token, purpose="login")
+        payload = verify_magic_token(token, "login")
         email = payload["sub"]
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid or expired token")
 
     jwt_token = create_jwt(email)
+    encoded_jwt = urllib.parse.quote(jwt_token)
 
-    return {
-        "jwt": jwt_token,
-        "email": email
-    }
+    return RedirectResponse(
+        url=f"{FRONTEND_URL}/Verify?jwt={encoded_jwt}&email={email}",
+        status_code=302
+    )

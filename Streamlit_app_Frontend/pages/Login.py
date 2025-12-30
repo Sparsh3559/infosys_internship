@@ -16,15 +16,26 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# -------------------------------
+# CONFIG
+# -------------------------------
 API_BASE = "https://infosys-internship-backend.onrender.com"
 
-st.title("🔐 Login (Magic Link)")
+# -------------------------------
+# UI
+# -------------------------------
+st.title("Secure Login")
 
-email = st.text_input("Email")
+st.caption("Enter your registered email address to receive a secure login link.")
 
-if st.button("Send Magic Link", key="send_login_link"):
+email = st.text_input("Email Address")
+
+# -------------------------------
+# LOGIN ACTION
+# -------------------------------
+if st.button("Send Login Link"):
     if not email:
-        st.warning("Enter your email")
+        st.warning("Please enter your email address.")
     else:
         try:
             res = requests.post(
@@ -34,9 +45,10 @@ if st.button("Send Magic Link", key="send_login_link"):
             )
 
             if res.status_code == 200:
-                st.success("Magic login link sent. Check your email.")
+                st.success("Login link sent successfully.")
+                st.info("Please check your email and click the link to continue.")
             else:
-                st.error(res.json().get("detail", "Login failed"))
+                st.error(res.json().get("detail", "Login request failed."))
 
         except requests.exceptions.RequestException:
-            st.error("Unable to reach authentication server.")
+            st.error("Unable to reach the authentication service. Please try again.")

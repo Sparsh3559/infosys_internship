@@ -22,14 +22,20 @@ st.markdown(
 )
 
 # -----------------------------------
-# ROUTER
+# ROUTER (SAFE)
 # -----------------------------------
-# First-time users → Register
-# Logged-in users → Content Studio
 
+current_page = st.query_params.get("page")
+
+# ✅ Allow Verify & Login pages to open naturally
+if current_page in ["verify", "login"]:
+    st.stop()
+
+# ✅ Logged-in users
 if "jwt" in st.session_state:
     st.switch_page("pages/Content_Studio.py")
     st.stop()
-else:
-    st.switch_page("pages/Register.py")
-    st.stop()
+
+# ✅ Default: Register
+st.switch_page("pages/Register.py")
+st.stop()

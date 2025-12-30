@@ -21,8 +21,8 @@ def create_magic_token(email: str, purpose: str) -> str:
     payload = {
         "sub": email,
         "purpose": purpose,
-        "exp": datetime.utcnow() + timedelta(minutes=TOKEN_EXP_MINUTES),
-        "iat": datetime.utcnow()
+        "iat": datetime.utcnow(),
+        "exp": datetime.utcnow() + timedelta(minutes=TOKEN_EXP_MINUTES)
     }
 
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
@@ -30,7 +30,7 @@ def create_magic_token(email: str, purpose: str) -> str:
 
 def verify_magic_token(token: str, purpose: str) -> dict:
     """
-    Verifies token validity, expiry, and purpose
+    Verifies token signature, expiry, and purpose
     """
 
     try:
