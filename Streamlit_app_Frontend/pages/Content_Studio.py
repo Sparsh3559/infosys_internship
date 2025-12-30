@@ -64,6 +64,17 @@ if "final_content" not in st.session_state:
     st.session_state.final_content = None
 if "user_idea" not in st.session_state:
     st.session_state.user_idea = ""
+# Store preferences in session state
+if "content_type" not in st.session_state:
+    st.session_state.content_type = None
+if "tone" not in st.session_state:
+    st.session_state.tone = None
+if "audience" not in st.session_state:
+    st.session_state.audience = None
+if "purpose" not in st.session_state:
+    st.session_state.purpose = None
+if "word_limit" not in st.session_state:
+    st.session_state.word_limit = 150
 
 # -------------------------------
 # UTILITY
@@ -198,6 +209,32 @@ st.markdown("""
         padding: 20px;
         margin: 20px 0;
     }
+
+    /* Fixed Editor Box Styling */
+    .editor-box {
+        background: linear-gradient(180deg, #111827, #0f172a);
+        color: #e5e7eb;
+        padding: 28px;
+        border-radius: 14px;
+        border: 1px solid #1f2937;
+        font-size: 16px;
+        line-height: 1.75;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        animation: fadeInUp 0.4s ease-out;
+        margin-bottom: 24px;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -241,54 +278,91 @@ with st.sidebar:
         st.divider()
         st.markdown("### Step 3: Preferences")
         
+        # Use placeholders and store in session state
+        content_type_options = ["LinkedIn Post", "Email", "Advertisement", "Conversation", "Blog Post", "Tweet Thread"]
+        content_type_index = content_type_options.index(st.session_state.content_type) if st.session_state.content_type else 0
+        
         content_type = st.selectbox(
             "Content type",
-            ["LinkedIn Post", "Email", "Advertisement", "Conversation", "Blog Post", "Tweet Thread"],
-            index=0
+            ["Select content type..."] + content_type_options,
+            index=0 if st.session_state.content_type is None else content_type_index + 1
         )
+        if content_type != "Select content type...":
+            st.session_state.content_type = content_type
 
+        tone_options = ["Professional", "Confident", "Friendly", "Conversational", "Inspirational"]
+        tone_index = tone_options.index(st.session_state.tone) if st.session_state.tone else 0
+        
         tone = st.selectbox(
             "Tone",
-            ["Professional", "Confident", "Friendly", "Conversational", "Inspirational"],
-            index=0
+            ["Select tone..."] + tone_options,
+            index=0 if st.session_state.tone is None else tone_index + 1
         )
+        if tone != "Select tone...":
+            st.session_state.tone = tone
 
+        audience_options = [
+            "Recruiters / Hiring Managers",
+            "General LinkedIn Audience",
+            "Technical Audience",
+            "Peers / Students",
+            "General Public"
+        ]
+        audience_index = audience_options.index(st.session_state.audience) if st.session_state.audience else 0
+        
         audience = st.selectbox(
             "Audience",
-            [
-                "Recruiters / Hiring Managers",
-                "General LinkedIn Audience",
-                "Technical Audience",
-                "Peers / Students",
-                "General Public"
-            ],
-            index=0
+            ["Select audience..."] + audience_options,
+            index=0 if st.session_state.audience is None else audience_index + 1
         )
+        if audience != "Select audience...":
+            st.session_state.audience = audience
 
+        purpose_options = [
+            "Share an experience",
+            "Showcase skills",
+            "Reflect on learning",
+            "Announce an achievement",
+            "Inspire others"
+        ]
+        purpose_index = purpose_options.index(st.session_state.purpose) if st.session_state.purpose else 0
+        
         purpose = st.selectbox(
             "Purpose",
-            [
-                "Share an experience",
-                "Showcase skills",
-                "Reflect on learning",
-                "Announce an achievement",
-                "Inspire others"
-            ],
-            index=0
+            ["Select purpose..."] + purpose_options,
+            index=0 if st.session_state.purpose is None else purpose_index + 1
         )
+        if purpose != "Select purpose...":
+            st.session_state.purpose = purpose
 
         word_limit = st.slider(
             "Word length",
             min_value=80,
             max_value=300,
             step=20,
-            value=150
+            value=st.session_state.word_limit
         )
+        st.session_state.word_limit = word_limit
 
         st.caption("Ideal for short professional drafts")
         st.divider()
         
-        generate_content_btn = st.button("✨ Generate Content", use_container_width=True)
+        # Only enable button if all selections are made
+        all_selected = (
+            st.session_state.content_type is not None and 
+            st.session_state.tone is not None and 
+            st.session_state.audience is not None and 
+            st.session_state.purpose is not None
+        )
+        
+        generate_content_btn = st.button(
+            "✨ Generate Content", 
+            use_container_width=True,
+            disabled=not all_selected
+        )
+        
+        if not all_selected:
+            st.caption("⚠️ Please select all options above")
     
     # STEP 4: Show everything that was selected
     elif st.session_state.step == "generation":
@@ -305,6 +379,11 @@ with st.sidebar:
             st.session_state.generated_prompts = []
             st.session_state.selected_prompt = None
             st.session_state.final_content = None
+            st.session_state.content_type = None
+            st.session_state.tone = None
+            st.session_state.audience = None
+            st.session_state.purpose = None
+            st.session_state.word_limit = 150
             st.rerun()
 
 # -------------------------------
@@ -433,19 +512,12 @@ elif st.session_state.step == "generation":
     st.divider()
     
     if st.session_state.final_content is None:
-        # Get the preferences from sidebar
-        content_type = st.session_state.get('content_type', 'LinkedIn Post')
-        tone = st.session_state.get('tone', 'Professional')
-        audience = st.session_state.get('audience', 'General LinkedIn Audience')
-        purpose = st.session_state.get('purpose', 'Share an experience')
-        word_limit = st.session_state.get('word_limit', 150)
-        
         with st.spinner("✨ Crafting your content..."):
             final_generation_prompt = (
-                f"Write a {tone.lower()} {content_type.lower()} "
-                f"within approximately {word_limit} words.\n"
-                f"Audience: {audience}.\n"
-                f"Purpose: {purpose}.\n"
+                f"Write a {st.session_state.tone.lower()} {st.session_state.content_type.lower()} "
+                f"within approximately {st.session_state.word_limit} words.\n"
+                f"Audience: {st.session_state.audience}.\n"
+                f"Purpose: {st.session_state.purpose}.\n"
                 f"Use at most 1–2 subtle, professional emojis if appropriate.\n"
                 f"Place emojis only in the title or at the very end.\n"
                 f"Ensure the content is polished, confident, and complete.\n"
@@ -454,7 +526,7 @@ elif st.session_state.step == "generation":
                 f"Content to develop:\n{st.session_state.selected_prompt}"
             )
             
-            generated_text = call_bedrock_api(final_generation_prompt, max_tokens=word_limit + 50, temperature=0.7)
+            generated_text = call_bedrock_api(final_generation_prompt, max_tokens=st.session_state.word_limit + 50, temperature=0.7)
             
             if generated_text:
                 st.session_state.final_content = clean_model_output(generated_text)
@@ -463,39 +535,11 @@ elif st.session_state.step == "generation":
             else:
                 st.error("Failed to generate content. Please try again.")
     
-    # Display final content
+    # Display final content - FIXED VERSION
     if st.session_state.final_content:
+        # Display content in a clean box without HTML tags visible
         st.markdown(
-            f"""
-            <style>
-            .editor-box {{
-                background: linear-gradient(180deg, #111827, #0f172a);
-                color: #e5e7eb;
-                padding: 28px;
-                border-radius: 14px;
-                border: 1px solid #1f2937;
-                font-size: 16px;
-                line-height: 1.75;
-                white-space: pre-wrap;
-                animation: fadeInUp 0.4s ease-out;
-            }}
-
-            @keyframes fadeInUp {{
-                from {{
-                    opacity: 0;
-                    transform: translateY(6px);
-                }}
-                to {{
-                    opacity: 1;
-                    transform: translateY(0);
-                }}
-            }}
-            </style>
-
-            <div class="editor-box">
-            {st.session_state.final_content}
-            </div>
-            """,
+            f'<div class="editor-box">{st.session_state.final_content}</div>',
             unsafe_allow_html=True
         )
 
