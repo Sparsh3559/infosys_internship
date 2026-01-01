@@ -55,7 +55,7 @@ HEADERS = {
 # SESSION STATE INITIALIZATION
 # -------------------------------
 if "step" not in st.session_state:
-    st.session_state.step = "input"  # input, prompt_selection, preferences, generation
+    st.session_state.step = "input"
 if "generated_prompts" not in st.session_state:
     st.session_state.generated_prompts = []
 if "selected_prompt" not in st.session_state:
@@ -64,7 +64,6 @@ if "final_content" not in st.session_state:
     st.session_state.final_content = None
 if "user_idea" not in st.session_state:
     st.session_state.user_idea = ""
-# Store preferences in session state
 if "content_type" not in st.session_state:
     st.session_state.content_type = None
 if "tone" not in st.session_state:
@@ -112,128 +111,275 @@ def call_bedrock_api(prompt: str, max_tokens: int = 500, temperature: float = 0.
         return None
 
 # -------------------------------
-# GLOBAL STYLING
+# MODERN STYLING
 # -------------------------------
 st.markdown("""
     <style>
-    /* ===== GLOBAL BACKGROUND ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    /* ===== GLOBAL RESET ===== */
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
     html, body, [data-testid="stApp"] {
-        background-color: #020617;
+        background: linear-gradient(135deg, #1a1d29 0%, #0f1117 100%);
         color: #e5e7eb;
     }
 
-    /* ===== SIDEBAR FULL DARK ===== */
+    /* ===== SIDEBAR STYLING ===== */
     [data-testid="stSidebar"] {
-        background-color: #020617;
+        background: rgba(17, 24, 39, 0.95);
+        backdrop-filter: blur(20px);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     [data-testid="stSidebar"] > div:first-child {
-        background-color: #020617;
+        background: transparent;
     }
 
     section[data-testid="stSidebar"] * {
         background-color: transparent !important;
     }
 
-    /* ===== MAIN CONTENT AREA ===== */
+    /* ===== MAIN CONTENT ===== */
     .block-container {
-        background-color: #020617;
+        background-color: transparent;
+        padding: 2rem 3rem;
+        max-width: 1200px;
     }
 
-    /* Inputs */
-    textarea, input, select {
-        background-color: #020617 !important;
+    /* ===== INPUT FIELDS ===== */
+    .stTextArea textarea,
+    .stTextInput input,
+    .stSelectbox select {
+        background: rgba(31, 41, 55, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 12px !important;
         color: #e5e7eb !important;
-        border: 1px solid #1f2937 !important;
+        padding: 14px 16px !important;
+        font-size: 15px !important;
+        transition: all 0.3s ease !important;
     }
 
-    /* Buttons */
-    button {
-        background-color: #020617 !important;
-        color: #e5e7eb !important;
-        border: 1px solid #1f2937 !important;
+    .stTextArea textarea:focus,
+    .stTextInput input:focus,
+    .stSelectbox select:focus {
+        border-color: rgba(99, 102, 241, 0.5) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+        outline: none !important;
     }
 
-    button:hover {
-        border-color: #38bdf8 !important;
+    /* ===== BUTTONS ===== */
+    .stButton button {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 12px 28px !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
     }
 
-    /* Sliders */
+    .stButton button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4) !important;
+    }
+
+    .stButton button:active {
+        transform: translateY(0) !important;
+    }
+
+    .stButton button:disabled {
+        background: rgba(75, 85, 99, 0.5) !important;
+        box-shadow: none !important;
+        cursor: not-allowed !important;
+    }
+
+    /* ===== SLIDER ===== */
     .stSlider > div {
-        background-color: #020617 !important;
+        background-color: transparent !important;
     }
 
-    /* Dividers */
-    hr {
-        border-color: #1f2937;
+    .stSlider [data-baseweb="slider"] {
+        background: rgba(99, 102, 241, 0.2);
     }
 
-    /* Prompt Cards */
+    /* ===== CARDS ===== */
+    .modern-card {
+        background: rgba(31, 41, 55, 0.5);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 28px;
+        margin: 16px 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modern-card:hover {
+        border-color: rgba(99, 102, 241, 0.3);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+    }
+
+    /* ===== PROMPT CARDS ===== */
     .prompt-card {
-        background: linear-gradient(135deg, #1e293b, #0f172a);
-        border: 2px solid #1f2937;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 10px 0;
-        transition: all 0.3s ease;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+        backdrop-filter: blur(20px);
+        border: 2px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 24px;
+        margin: 12px 0;
         cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .prompt-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .prompt-card:hover::before {
+        opacity: 1;
     }
 
     .prompt-card:hover {
-        border-color: #38bdf8;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+        border-color: rgba(99, 102, 241, 0.4);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 35px rgba(99, 102, 241, 0.2);
     }
 
     .prompt-card.selected {
-        border-color: #38bdf8;
-        background: linear-gradient(135deg, #1e3a5f, #0f172a);
+        border-color: #6366f1;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
     }
 
     .prompt-title {
-        color: #38bdf8;
+        color: #a5b4fc;
         font-weight: 600;
-        margin-bottom: 8px;
-        font-size: 18px;
+        margin-bottom: 12px;
+        font-size: 17px;
+        letter-spacing: -0.01em;
     }
 
     .prompt-text {
-        color: #e5e7eb;
-        line-height: 1.6;
+        color: #d1d5db;
+        line-height: 1.7;
+        font-size: 15px;
     }
 
+    /* ===== SELECTED PROMPT DISPLAY ===== */
     .selected-prompt-display {
-        background: linear-gradient(135deg, #1e3a5f, #0f172a);
-        border: 2px solid #38bdf8;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 20px 0;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08));
+        border: 2px solid rgba(99, 102, 241, 0.3);
+        border-radius: 16px;
+        padding: 24px;
+        margin: 24px 0;
+        backdrop-filter: blur(20px);
     }
 
-    /* Fixed Editor Box Styling */
+    /* ===== CONTENT EDITOR BOX ===== */
     .editor-box {
-        background: linear-gradient(180deg, #111827, #0f172a);
+        background: linear-gradient(135deg, rgba(17, 24, 39, 0.9), rgba(15, 23, 42, 0.9));
+        backdrop-filter: blur(30px);
         color: #e5e7eb;
-        padding: 28px;
-        border-radius: 14px;
-        border: 1px solid #1f2937;
+        padding: 32px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
         font-size: 16px;
-        line-height: 1.75;
+        line-height: 1.8;
         white-space: pre-wrap;
         word-wrap: break-word;
-        animation: fadeInUp 0.4s ease-out;
+        animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         margin-bottom: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
     @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(6px);
+            transform: translateY(12px);
         }
         to {
             opacity: 1;
             transform: translateY(0);
         }
+    }
+
+    /* ===== HEADERS ===== */
+    h1, h2, h3 {
+        letter-spacing: -0.02em;
+        font-weight: 700;
+    }
+
+    h2 {
+        background: linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* ===== DIVIDERS ===== */
+    hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        margin: 24px 0;
+    }
+
+    /* ===== CAPTIONS ===== */
+    .caption, [data-testid="stCaptionContainer"] {
+        color: #9ca3af !important;
+        font-size: 14px;
+        letter-spacing: 0.01em;
+    }
+
+    /* ===== EXPANDER ===== */
+    .streamlit-expanderHeader {
+        background: rgba(31, 41, 55, 0.4) !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    }
+
+    /* ===== DOWNLOAD BUTTON ===== */
+    .stDownloadButton button {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    }
+
+    /* ===== STEP INDICATOR ===== */
+    .step-indicator {
+        background: rgba(99, 102, 241, 0.1);
+        border-left: 3px solid #6366f1;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        color: #a5b4fc;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    /* ===== SUCCESS MESSAGE ===== */
+    .success-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-left: 8px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -242,101 +388,93 @@ st.markdown("""
 # SIDEBAR (DYNAMIC BASED ON STEP)
 # -------------------------------
 with st.sidebar:
-    st.markdown("## ✨ Content Studio")
-    st.caption("Create clear, professional content with intent")
+    st.markdown("## ✨ AI Content Studio")
+    st.caption("Transform ideas into polished content")
     st.divider()
 
     # STEP 1: Initial idea input
     if st.session_state.step == "input":
-        st.markdown("### Step 1: Your Idea")
+        st.markdown("### 💡 Step 1: Your Idea")
         prompt = st.text_area(
-            "Describe your rough idea",
-            placeholder="Example: I participated in a national-level hackathon and won first place...",
+            "What would you like to create?",
+            placeholder="Example: I won first place at a national hackathon by building an AI-powered sustainability tracker...",
             height=150,
-            value=st.session_state.user_idea
+            value=st.session_state.user_idea,
+            label_visibility="collapsed"
         )
         
-        st.caption("💡 Don't worry about perfecting it - we'll refine it for you!")
+        st.caption("✨ Just share your rough idea - we'll refine it")
         st.divider()
         
-        generate_prompts_btn = st.button("🎯 Generate Prompt Options", use_container_width=True)
+        generate_prompts_btn = st.button("🎯 Generate Prompts", use_container_width=True)
     
-    # STEP 2: Just show what was selected
+    # STEP 2: Show selected idea
     elif st.session_state.step == "prompt_selection":
-        st.markdown("### Step 1: Your Idea ✓")
-        st.caption(f"_{st.session_state.user_idea[:100]}..._" if len(st.session_state.user_idea) > 100 else f"_{st.session_state.user_idea}_")
+        st.markdown('<div class="step-indicator">📝 Your Idea</div>', unsafe_allow_html=True)
+        with st.expander("View your idea"):
+            st.caption(st.session_state.user_idea)
         st.divider()
-        st.markdown("### Step 2: Choose Prompt")
-        st.caption("Select your preferred approach below →")
+        st.markdown("### 🎯 Step 2: Choose Approach")
+        st.caption("Select your preferred direction")
     
     # STEP 3: Show selected prompt + preferences form
     elif st.session_state.step == "preferences":
-        st.markdown("### Selected Prompt ✓")
-        with st.expander("View selected prompt"):
-            st.write(st.session_state.selected_prompt)
+        st.markdown('<div class="step-indicator">✓ Prompt Selected</div>', unsafe_allow_html=True)
+        with st.expander("View prompt"):
+            st.caption(st.session_state.selected_prompt[:150] + "...")
         
         st.divider()
-        st.markdown("### Step 3: Preferences")
+        st.markdown("### ⚙️ Content Preferences")
         
-        # Use placeholders and store in session state
-        content_type_options = ["LinkedIn Post", "Email", "Advertisement", "Conversation", "Blog Post", "Tweet Thread"]
-        content_type_index = content_type_options.index(st.session_state.content_type) if st.session_state.content_type else 0
-        
+        content_type_options = ["LinkedIn Post", "Email", "Advertisement", "Blog Post", "Tweet Thread"]
         content_type = st.selectbox(
-            "Content type",
-            ["Select content type..."] + content_type_options,
-            index=0 if st.session_state.content_type is None else content_type_index + 1
+            "Content Type",
+            [""] + content_type_options,
+            index=0 if st.session_state.content_type is None else content_type_options.index(st.session_state.content_type) + 1
         )
-        if content_type != "Select content type...":
+        if content_type:
             st.session_state.content_type = content_type
 
         tone_options = ["Professional", "Confident", "Friendly", "Conversational", "Inspirational"]
-        tone_index = tone_options.index(st.session_state.tone) if st.session_state.tone else 0
-        
         tone = st.selectbox(
             "Tone",
-            ["Select tone..."] + tone_options,
-            index=0 if st.session_state.tone is None else tone_index + 1
+            [""] + tone_options,
+            index=0 if st.session_state.tone is None else tone_options.index(st.session_state.tone) + 1
         )
-        if tone != "Select tone...":
+        if tone:
             st.session_state.tone = tone
 
         audience_options = [
-            "Recruiters / Hiring Managers",
-            "General LinkedIn Audience",
-            "Technical Audience",
-            "Peers / Students",
-            "General Public"
+            "Recruiters",
+            "General Audience",
+            "Technical Professionals",
+            "Peers & Students",
+            "Industry Leaders"
         ]
-        audience_index = audience_options.index(st.session_state.audience) if st.session_state.audience else 0
-        
         audience = st.selectbox(
-            "Audience",
-            ["Select audience..."] + audience_options,
-            index=0 if st.session_state.audience is None else audience_index + 1
+            "Target Audience",
+            [""] + audience_options,
+            index=0 if st.session_state.audience is None else audience_options.index(st.session_state.audience) + 1
         )
-        if audience != "Select audience...":
+        if audience:
             st.session_state.audience = audience
 
         purpose_options = [
-            "Share an experience",
-            "Showcase skills",
-            "Reflect on learning",
-            "Announce an achievement",
-            "Inspire others"
+            "Share Experience",
+            "Showcase Skills",
+            "Inspire Others",
+            "Announce Achievement"
         ]
-        purpose_index = purpose_options.index(st.session_state.purpose) if st.session_state.purpose else 0
-        
         purpose = st.selectbox(
             "Purpose",
-            ["Select purpose..."] + purpose_options,
-            index=0 if st.session_state.purpose is None else purpose_index + 1
+            [""] + purpose_options,
+            index=0 if st.session_state.purpose is None else purpose_options.index(st.session_state.purpose) + 1
         )
-        if purpose != "Select purpose...":
+        if purpose:
             st.session_state.purpose = purpose
 
         word_limit = st.slider(
-            "Word length",
+            "Word Count",
             min_value=80,
             max_value=300,
             step=20,
@@ -344,15 +482,13 @@ with st.sidebar:
         )
         st.session_state.word_limit = word_limit
 
-        st.caption("Ideal for short professional drafts")
         st.divider()
         
-        # Only enable button if all selections are made
         all_selected = (
-            st.session_state.content_type is not None and 
-            st.session_state.tone is not None and 
-            st.session_state.audience is not None and 
-            st.session_state.purpose is not None
+            st.session_state.content_type and 
+            st.session_state.tone and 
+            st.session_state.audience and 
+            st.session_state.purpose
         )
         
         generate_content_btn = st.button(
@@ -362,19 +498,17 @@ with st.sidebar:
         )
         
         if not all_selected:
-            st.caption("⚠️ Please select all options above")
+            st.caption("⚠️ Complete all fields above")
     
-    # STEP 4: Show everything that was selected
+    # STEP 4: Configuration complete
     elif st.session_state.step == "generation":
-        st.markdown("### Configuration ✓")
-        st.caption("All settings locked in")
-        with st.expander("View details"):
-            st.write(f"**Prompt:** {st.session_state.selected_prompt[:100]}...")
+        st.markdown('<div class="step-indicator">✓ All Set</div>', unsafe_allow_html=True)
+        st.caption("Your content is ready!")
     
-    # Reset button (always available after step 1)
+    # Reset button
     if st.session_state.step != "input":
         st.divider()
-        if st.button("🔄 Start Over", use_container_width=True):
+        if st.button("🔄 Start New", use_container_width=True):
             st.session_state.step = "input"
             st.session_state.generated_prompts = []
             st.session_state.selected_prompt = None
@@ -390,18 +524,19 @@ with st.sidebar:
 # MAIN AREA
 # -------------------------------
 
-# STEP 1: Generate Prompt Options from Raw Idea
+# STEP 1: Generate Prompt Options
 if st.session_state.step == "input":
-    st.markdown("## 🎯 Step 1: Start with Your Idea")
-    st.caption("Just share your rough thought - we'll help you refine it into two clear prompts")
+    st.markdown("## 💭 Start with Your Raw Idea")
+    st.caption("Share your thoughts - we'll transform them into clear, actionable prompts")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     if 'generate_prompts_btn' in locals() and generate_prompts_btn:
         if not prompt or len(prompt.strip()) < 10:
-            st.warning("Please provide a more detailed idea (at least 10 characters).")
+            st.warning("⚠️ Please share a bit more detail (at least 10 characters)")
         else:
             st.session_state.user_idea = prompt
             
-            with st.spinner("🤔 Analyzing your idea and crafting prompt options..."):
+            with st.spinner("🔮 Analyzing and crafting your prompts..."):
                 refinement_prompt = f"""You are a prompt engineering expert. A user has shared this rough idea:
 
 "{prompt}"
@@ -444,19 +579,17 @@ Make both prompts excellent but distinctly different in their approach."""
                         st.session_state.step = "prompt_selection"
                         st.rerun()
                     except Exception as e:
-                        st.error(f"Failed to parse prompt options. Please try again.")
-                        with st.expander("Debug info"):
-                            st.code(response_text)
+                        st.error("❌ Failed to generate prompts. Please try again.")
                 else:
-                    st.error("Failed to generate prompt options. Please try again.")
+                    st.error("❌ Connection error. Please try again.")
 
 # STEP 2: Select Refined Prompt
 elif st.session_state.step == "prompt_selection":
-    st.markdown("## 🎯 Step 2: Choose Your Refined Prompt")
-    st.caption("Select the approach that best captures what you want to communicate")
-    st.divider()
+    st.markdown("## 🎯 Choose Your Direction")
+    st.caption("Pick the approach that resonates with your vision")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2, gap="large")
     
     with col1:
         prompt_option_1 = st.session_state.generated_prompts[0]
@@ -467,7 +600,7 @@ elif st.session_state.step == "prompt_selection":
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("✅ Select This Prompt", key="select_prompt_1", use_container_width=True):
+        if st.button("Select This", key="select_prompt_1", use_container_width=True):
             st.session_state.selected_prompt = prompt_option_1['prompt']
             st.session_state.step = "preferences"
             st.rerun()
@@ -481,25 +614,25 @@ elif st.session_state.step == "prompt_selection":
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("✅ Select This Prompt", key="select_prompt_2", use_container_width=True):
+        if st.button("Select This", key="select_prompt_2", use_container_width=True):
             st.session_state.selected_prompt = prompt_option_2['prompt']
             st.session_state.step = "preferences"
             st.rerun()
 
-# STEP 3: Set Preferences (after prompt selection)
+# STEP 3: Set Preferences
 elif st.session_state.step == "preferences":
-    st.markdown("## ⚙️ Step 3: Customize Your Content")
-    st.caption("Now configure how you want this content delivered")
+    st.markdown("## ⚙️ Customize Your Content")
+    st.caption("Fine-tune the output to match your needs")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     st.markdown(f"""
     <div class="selected-prompt-display">
-        <div class="prompt-title">Your Selected Prompt:</div>
+        <div class="prompt-title">Selected Direction:</div>
         <div class="prompt-text">{st.session_state.selected_prompt}</div>
     </div>
     """, unsafe_allow_html=True)
     
-    st.divider()
-    st.markdown("### 👈 Set your preferences in the sidebar, then click 'Generate Content'")
+    st.markdown("### 👈 Configure your preferences in the sidebar")
 
     if 'generate_content_btn' in locals() and generate_content_btn:
         st.session_state.step = "generation"
@@ -507,12 +640,12 @@ elif st.session_state.step == "preferences":
 
 # STEP 4: Generate Final Content
 elif st.session_state.step == "generation":
-    st.markdown("## 📝 Your Generated Content")
-    st.caption("Crafted from your refined prompt with your preferences")
-    st.divider()
+    st.markdown("## ✨ Your Generated Content")
+    st.caption("Crafted with precision based on your preferences")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     if st.session_state.final_content is None:
-        with st.spinner("✨ Crafting your content..."):
+        with st.spinner("🎨 Creating your content..."):
             final_generation_prompt = (
                 f"Write a {st.session_state.tone.lower()} {st.session_state.content_type.lower()} "
                 f"within approximately {st.session_state.word_limit} words.\n"
@@ -530,28 +663,24 @@ elif st.session_state.step == "generation":
             
             if generated_text:
                 st.session_state.final_content = clean_model_output(generated_text)
-                time.sleep(0.2)
+                time.sleep(0.3)
                 st.rerun()
             else:
-                st.error("Failed to generate content. Please try again.")
+                st.error("❌ Generation failed. Please try again.")
     
-    # Display final content - FIXED VERSION
     if st.session_state.final_content:
-        # Display content in a clean box without HTML tags visible
         st.markdown(
             f'<div class="editor-box">{st.session_state.final_content}</div>',
             unsafe_allow_html=True
         )
 
-        st.divider()
-
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns(3, gap="medium")
 
         with col1:
             st.download_button(
-                "📄 Download Content",
+                "📥 Download",
                 st.session_state.final_content,
-                file_name="generated_content.txt",
+                file_name="content.txt",
                 use_container_width=True
             )
 
@@ -561,7 +690,7 @@ elif st.session_state.step == "generation":
                 st.rerun()
 
         with col3:
-            if st.button("⬅️ Try Other Prompt", use_container_width=True):
+            if st.button("← Try Other Prompt", use_container_width=True):
                 st.session_state.step = "prompt_selection"
                 st.session_state.final_content = None
                 st.rerun()
