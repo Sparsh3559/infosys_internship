@@ -278,9 +278,8 @@ st.markdown("""
 # -------------------------------
 # LOGIN CARD
 # -------------------------------
-st.markdown('<div class="login-card">', unsafe_allow_html=True)
+st.markdown("""<div class="login-card">Enter your registered email to receive a secure login link </div>""", unsafe_allow_html=True)
 
-st.caption("Enter your registered email to receive a secure login link")
 st.markdown("<br>", unsafe_allow_html=True)
 
 email = st.text_input(
