@@ -27,17 +27,33 @@ header[data-testid="stHeader"] { display: none; }
 # LOAD BACKGROUND IMAGE (LOCAL, SAFE)
 # -----------------------------------
 def load_bg_image(relative_path):
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    image_path = os.path.join(base_dir, "..", relative_path)
-    with open(image_path, "rb") as f:
-        return base64.b64encode(f.read()).decode()
+    try:
+        # Get the directory containing Login.py
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        # Go up one level and join with relative_path
+        image_path = os.path.normpath(os.path.join(base_dir, "..", relative_path))
+        
+        # Check if file exists
+        if not os.path.exists(image_path):
+            print(f"❌ Image not found at: {image_path}")
+            return None
+            
+        print(f"✅ Loading image from: {image_path}")
+        
+        with open(image_path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except Exception as e:
+        print(f"❌ Error loading background image: {str(e)}")
+        return None
 
 bg_image = load_bg_image("assets/bg_copy.jpg")
 
 # -----------------------------------
 # BACKGROUND + GLOBAL STYLES
 # -----------------------------------
-st.markdown(f"""
+if bg_image:
+    # With background image
+    st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -120,6 +136,86 @@ html, body, [data-testid="stApp"] {{
 }}
 </style>
 """, unsafe_allow_html=True)
+else:
+    # Fallback without background image
+    st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+html, body, [data-testid="stApp"] {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    color: #e5e7eb;
+}
+
+.block-container {
+    max-width: 520px;
+    padding-top: 5rem;
+    margin: auto;
+}
+
+.login-box {
+    background: rgba(17, 24, 39, 0.75);
+    backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 22px;
+    padding: 2.8rem;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.55);
+}
+
+.login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.4rem;
+    background: linear-gradient(135deg, #a5b4fc, #c4b5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #9ca3af;
+    margin-bottom: 2rem;
+}
+
+.stTextInput input {
+    background: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    border-radius: 14px !important;
+    padding: 15px !important;
+    color: #e5e7eb !important;
+}
+
+.stTextInput input:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.25) !important;
+}
+
+.stButton button {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    border-radius: 14px !important;
+    padding: 14px !important;
+    font-weight: 600 !important;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(99,102,241,0.4);
+}
+
+.stButton button:hover {
+    transform: translateY(-2px);
+}
+
+.footer {
+    text-align: center;
+    margin-top: 1.8rem;
+    font-size: 13px;
+    color: #9ca3af;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # -----------------------------------
 # BACKEND CONFIG
@@ -154,13 +250,14 @@ if st.button("Send Login Link"):
                 )
 
             if res.status_code == 200:
-                st.success("Login link sent successfully")
-                st.info("Check your email to continue")
+                st.success("✅ Login link sent successfully")
+                st.info("📧 Check your email to continue")
             else:
                 st.error(res.json().get("detail", "Login failed"))
 
-        except requests.exceptions.RequestException:
-            st.error("Unable to connect to authentication service")
+        except requests.exceptions.RequestException as e:
+            st.error("❌ Unable to connect to authentication service")
+            print(f"Connection error: {str(e)}")
 
 st.markdown("""
 <div class="footer">
