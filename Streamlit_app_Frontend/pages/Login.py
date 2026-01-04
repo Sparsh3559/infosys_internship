@@ -32,7 +32,7 @@ def load_bg_image(relative_path):
     with open(image_path, "rb") as f:
         return base64.b64encode(f.read()).decode()
 
-bg_image = load_bg_image("assets/bgi_copy.jpg")
+bg_image = load_bg_image("assets/bg_copy.jpg")
 
 # -----------------------------------
 # BACKGROUND + GLOBAL STYLES
