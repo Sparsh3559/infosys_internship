@@ -513,12 +513,12 @@ st.markdown(f"""
 # Hidden interaction buttons
 col_menu, col_profile = st.columns(2)
 with col_menu:
-    if st.button("Toggle Menu", key="menu-toggle", label_visibility="collapsed"):
+    if st.button("Toggle Menu", key="menu-toggle"):
         st.session_state.menu_open = not st.session_state.menu_open
         st.rerun()
 
 with col_profile:
-    if st.button("Profile", key="profile-click", label_visibility="collapsed"):
+    if st.button("Profile", key="profile-click"):
         st.session_state.page = "settings"
         st.rerun()
 
