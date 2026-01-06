@@ -4,11 +4,11 @@ from fastapi.responses import RedirectResponse
 import os
 import urllib.parse
 
-from database import SessionLocal
-from models import User
-from auth.magic_link import create_magic_token, verify_magic_token
-from auth.jwt import create_jwt
-from auth.email import send_magic_link
+from Auth_Backend.database import SessionLocal
+from Auth_Backend.models import User
+from Auth_Backend.auth.magic_link import create_magic_token, verify_magic_token
+from Auth_Backend.auth.jwt import create_jwt
+from Auth_Backend.auth.email import send_magic_link
 
 router = APIRouter()
 
