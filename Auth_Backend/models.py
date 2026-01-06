@@ -1,6 +1,11 @@
 from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime
-from .database import Base 
 from datetime import datetime
+
+# Try relative import first (for Streamlit), fall back to direct import (for FastAPI)
+try:
+    from .database import Base
+except ImportError:
+    from database import Base
 
 class User(Base):
     __tablename__ = "users"

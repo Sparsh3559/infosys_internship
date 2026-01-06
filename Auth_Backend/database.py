@@ -29,8 +29,11 @@ def init_db():
     This should be called once when the app starts.
     """
     try:
-        # ✅ FIXED: Use relative import with dot notation
-        from .models import User, ContentHistory
+        # Try relative import first (for Streamlit), fall back to direct import (for FastAPI)
+        try:
+            from .models import User, ContentHistory
+        except ImportError:
+            from models import User, ContentHistory
         
         # Create all tables
         Base.metadata.create_all(bind=engine)
@@ -53,15 +56,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-# --------------------------------------------------
-# AUTO-INITIALIZE ON IMPORT (DISABLED FOR NOW)
-# --------------------------------------------------
-# IMPORTANT: Commenting this out to prevent import errors
-# Call init_db() manually from your main app if needed
-# 
-# if not os.path.exists("users.db"):
-#     print("📦 Database not found. Creating new database...")
-#     init_db()
-# else:
-#     print("✅ Database connection established.")
