@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 import os
 import urllib.parse
 
-from Auth_Backend.database import SessionLocal
+from database import SessionLocal
 from Auth_Backend.models import User
 from Auth_Backend.auth.magic_link import create_magic_token, verify_magic_token
 from Auth_Backend.auth.jwt import create_jwt
