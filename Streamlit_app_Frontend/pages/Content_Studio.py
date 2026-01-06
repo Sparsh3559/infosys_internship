@@ -541,7 +541,7 @@ for icon, label, page_key in menu_items:
     active = "active" if st.session_state.page == page_key else ""
     st.markdown(f'<div class="menu-item {active}">{icon} {label}</div>', unsafe_allow_html=True)
     
-    if st.button(label, key=f"nav_{page_key}", label_visibility="collapsed"):
+    if st.button(label, key=f"nav_{page_key}"):
         if page_key == "logout":
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
