@@ -29,8 +29,8 @@ def init_db():
     This should be called once when the app starts.
     """
     try:
-        # Use relative import since we're inside Auth_Backend
-        from models import User, ContentHistory  # ✅ Changed from Auth_Backend.models
+        # ✅ FIXED: Use absolute import
+        from Auth_Backend.models import User, ContentHistory
         
         # Create all tables
         Base.metadata.create_all(bind=engine)
