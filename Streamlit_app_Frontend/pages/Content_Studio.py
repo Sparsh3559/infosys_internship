@@ -5,6 +5,9 @@ import re
 import sys
 import os
 import json
+from database import SessionLocal
+from models import ContentHistory
+from datetime import datetime
 
 # -------------------------------
 # PAGE CONFIG (Must be first!)
@@ -74,7 +77,6 @@ if "purpose" not in st.session_state:
     st.session_state.purpose = None
 if "word_limit" not in st.session_state:
     st.session_state.word_limit = 150
-
 # -------------------------------
 # UTILITY
 # -------------------------------
@@ -82,6 +84,7 @@ def clean_model_output(text: str) -> str:
     text = re.sub(r"</?[^>]+>", "", text)
     text = text.replace("<", "").replace(">", "")
     return text.strip()
+
 
 def call_bedrock_api(prompt: str, max_tokens: int = 500, temperature: float = 0.7):
     """Generic function to call Bedrock API"""
@@ -110,6 +113,46 @@ def call_bedrock_api(prompt: str, max_tokens: int = 500, temperature: float = 0.
     else:
         return None
 
+
+# -------------------------------
+# HISTORY UTILITIES (SAFE ADD)
+# -------------------------------
+def get_user_history(email: str):
+    """Fetch all history for a user"""
+    db = SessionLocal()
+    items = (
+        db.query(ContentHistory)
+        .filter(ContentHistory.user_email == email)
+        .order_by(ContentHistory.created_at.desc())
+        .all()
+    )
+    db.close()
+    return items
+
+
+def delete_history_item(item_id: int):
+    """Delete a single history item"""
+    db = SessionLocal()
+    item = db.query(ContentHistory).filter(ContentHistory.id == item_id).first()
+    if item:
+        db.delete(item)
+        db.commit()
+    db.close()
+
+
+def load_history_item(item: ContentHistory):
+    """
+    Load history back into session (Resume Content)
+    Goes to generation screen with same output
+    """
+    st.session_state.selected_prompt = item.title
+    st.session_state.content_type = item.content_type
+    st.session_state.tone = item.tone
+    st.session_state.audience = item.audience
+    st.session_state.purpose = item.purpose
+    st.session_state.word_limit = item.word_limit
+    st.session_state.final_content = item.generated_content
+    st.session_state.step = "generation"
 # -------------------------------
 # MODERN STYLING
 # -------------------------------
@@ -519,6 +562,47 @@ with st.sidebar:
             st.session_state.purpose = None
             st.session_state.word_limit = 150
             st.rerun()
+            
+    # -------------------------------
+    # HISTORY SECTION
+    # -------------------------------
+    st.divider()
+    st.markdown("### 🕒 History")
+
+    history_search = st.text_input(
+        "Search history",
+        placeholder="Search by title or content",
+        label_visibility="collapsed"
+    )
+
+    if "email" in st.session_state:
+        history_items = get_user_history(st.session_state["email"])
+
+        if history_search:
+            history_items = [
+                h for h in history_items
+                if history_search.lower() in h.title.lower()
+                or history_search.lower() in h.generated_content.lower()
+            ]
+
+        for item in history_items:
+            with st.expander(f"📄 {item.title}"):
+                st.caption(
+                    f"{item.content_type} • {item.tone} • "
+                    f"{item.audience} • {item.created_at.strftime('%d %b %Y, %I:%M %p')}"
+                )
+
+                col_a, col_b = st.columns(2)
+
+                with col_a:
+                    if st.button("↩ Resume", key=f"load_{item.id}"):
+                        load_history_item(item)
+                        st.rerun()
+
+                with col_b:
+                    if st.button("🗑 Delete", key=f"delete_{item.id}"):
+                        delete_history_item(item.id)
+                        st.rerun()
 
 # -------------------------------
 # MAIN AREA
@@ -663,6 +747,25 @@ elif st.session_state.step == "generation":
             
             if generated_text:
                 st.session_state.final_content = clean_model_output(generated_text)
+           
+                # SAVE GENERATED CONTENT TO HISTORY
+              
+                db = SessionLocal()
+
+                history = ContentHistory(
+                    user_email=st.session_state.get("email"),
+                    title=st.session_state.selected_prompt[:60],
+                    content_type=st.session_state.content_type,
+                    tone=st.session_state.tone,
+                    audience=st.session_state.audience,
+                    purpose=st.session_state.purpose,
+                    word_limit=st.session_state.word_limit,
+                    generated_content=st.session_state.final_content
+                )
+
+                db.add(history)
+                db.commit()
+                db.close()
                 time.sleep(0.3)
                 st.rerun()
             else:

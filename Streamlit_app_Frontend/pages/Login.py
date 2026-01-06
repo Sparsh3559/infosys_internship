@@ -212,9 +212,7 @@ API_BASE = "https://infosys-internship-backend.onrender.com"
 # -----------------------------------
 # LOGIN UI
 # -----------------------------------
-st.markdown('<div class="login-box">', unsafe_allow_html=True)
-
-st.markdown('<div class="login-title">AI Content Studio</div>', unsafe_allow_html=True)
+st.markdown('<div class="login-box">AI Content Studio</div>', unsafe_allow_html=True)
 st.markdown('<div class="login-subtitle">Secure login via email verification</div>', unsafe_allow_html=True)
 
 email = st.text_input(

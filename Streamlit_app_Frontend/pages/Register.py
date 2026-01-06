@@ -300,9 +300,7 @@ st.markdown("""
 # -----------------------------------
 # REGISTER CARD
 # -----------------------------------
-st.markdown('<div class="register-card">', unsafe_allow_html=True)
-
-st.caption("Enter your details to get started")
+st.markdown("""<div class="register-card">Enter your details to get started</div>""", unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
 # -----------------------------------

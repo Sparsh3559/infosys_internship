@@ -22,7 +22,7 @@ st.markdown(
 )
 
 # -----------------------------------
-# ROUTER (SAFE)
+# ROUTER 
 # -----------------------------------
 
 current_page = st.query_params.get("page")
