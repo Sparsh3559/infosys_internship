@@ -29,8 +29,8 @@ def init_db():
     This should be called once when the app starts.
     """
     try:
-        # ✅ FIXED: Use absolute import
-        from Auth_Backend.models import User, ContentHistory
+        # ✅ FIXED: Use relative import with dot notation
+        from .models import User, ContentHistory
         
         # Create all tables
         Base.metadata.create_all(bind=engine)
@@ -55,11 +55,13 @@ def get_db():
         db.close()
 
 # --------------------------------------------------
-# AUTO-INITIALIZE ON IMPORT
+# AUTO-INITIALIZE ON IMPORT (DISABLED FOR NOW)
 # --------------------------------------------------
-# Automatically create tables when this module is imported
-if not os.path.exists("users.db"):
-    print("📦 Database not found. Creating new database...")
-    init_db()
-else:
-    print("✅ Database connection established.")
+# IMPORTANT: Commenting this out to prevent import errors
+# Call init_db() manually from your main app if needed
+# 
+# if not os.path.exists("users.db"):
+#     print("📦 Database not found. Creating new database...")
+#     init_db()
+# else:
+#     print("✅ Database connection established.")

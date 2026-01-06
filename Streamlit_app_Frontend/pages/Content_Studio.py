@@ -26,9 +26,15 @@ if ROOT_DIR not in sys.path:
 
 # Import database and auth
 try:
-    from Auth_Backend.database import SessionLocal
+    from Auth_Backend.database import SessionLocal, init_db
     from Auth_Backend.models import ContentHistory
     from utils.auth_gaurd import protect
+    
+    # Initialize database tables if needed
+    import os
+    if not os.path.exists("users.db"):
+        init_db()
+    
     protect()
 except ImportError as e:
     st.error(f"Import Error: {str(e)}")
