@@ -1,7 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean , Text , DateTime
-from database import Base
+from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime
+from Auth_Backend.database import Base  
 from datetime import datetime
-
 
 
 class User(Base):
@@ -11,6 +10,7 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     is_verified = Column(Boolean, default=False)
+
 
 class ContentHistory(Base):
     __tablename__ = "content_history"
