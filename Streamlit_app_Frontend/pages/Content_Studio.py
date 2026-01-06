@@ -5,8 +5,8 @@ import re
 import sys
 import os
 import json
-from database import SessionLocal
-from models import ContentHistory
+from Auth_Backend.database import SessionLocal
+from Auth_Backend.models import ContentHistory
 from datetime import datetime
 
 # -------------------------------
@@ -562,7 +562,7 @@ with st.sidebar:
             st.session_state.purpose = None
             st.session_state.word_limit = 150
             st.rerun()
-            
+
     # -------------------------------
     # HISTORY SECTION
     # -------------------------------
