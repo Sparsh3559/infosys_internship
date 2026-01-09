@@ -72,11 +72,11 @@ def init_session_state():
         "user_profile_pic": "👤",
         "show_template_save_modal": False,
         "new_template_name": "",
-        "theme": "dark",  # Theme toggle
-        "show_evaluation": False,  # Track if evaluation is shown
-        "evaluation_scores": None,  # Store evaluation results
-        "user_templates": [],  # User's custom templates
-        "default_templates": [  # Non-deletable default templates
+        "theme": "dark",
+        "show_evaluation": False,
+        "evaluation_scores": None,
+        "user_templates": [],
+        "default_templates": [
             {
                 "name": "Professional Achievement",
                 "content_type": "LinkedIn Post",
@@ -231,13 +231,9 @@ Only return the JSON, no other text."""
                 cleaned = cleaned.split("```")[1].split("```")[0].strip()
             
             scores = json.loads(cleaned)
-            
-            # Calculate overall score
             scores["overall"] = int(sum(scores.values()) / len(scores))
-            
             return scores
         except Exception as e:
-            # Return default scores if parsing fails
             return {
                 "clarity": 75,
                 "engagement": 70,
@@ -272,7 +268,7 @@ def get_theme_colors():
             "progress_bg": "rgba(75, 85, 99, 0.3)",
             "scrollbar_track": "rgba(31, 41, 55, 0.3)",
         }
-    else:  # light theme
+    else:
         return {
             "bg_primary": "#f9fafb",
             "bg_secondary": "#ffffff",
@@ -331,7 +327,12 @@ st.markdown(f"""
         background: transparent !important;
     }}
     
-    /* CLICKABLE SIDEBAR ITEMS */
+    /* HIDE ALL STREAMLIT BUTTONS IN SIDEBAR */
+    [data-testid="stSidebar"] button {{
+        display: none !important;
+    }}
+    
+    /* CLICKABLE SIDEBAR ITEMS - NO BUTTON STYLING */
     .sidebar-nav-item {{
         display: flex;
         align-items: center;
@@ -353,6 +354,7 @@ st.markdown(f"""
         color: {theme_colors['text_accent']};
         border-left-color: #8b5cf6;
         transform: translateX(2px);
+        filter: brightness(1.1);
     }}
     
     .sidebar-nav-item.active {{
@@ -362,28 +364,28 @@ st.markdown(f"""
         font-weight: 600;
     }}
     
-    /* THEME TOGGLE BUTTON */
+    /* THEME TOGGLE - SIMPLE LABEL STYLE */
     .theme-toggle {{
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        padding: 0.7rem 1rem;
-        margin: 0.5rem 0.8rem;
+        padding: 0.9rem 1.3rem;
+        margin: 0.3rem 0.8rem;
         border-radius: 10px;
-        background: {theme_colors['sidebar_nav_hover']};
-        border: 1px solid {theme_colors['border_color']};
         color: {theme_colors['text_secondary']};
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s ease;
+        border-left: 3px solid transparent;
     }}
     
     .theme-toggle:hover {{
-        background: rgba(139, 92, 246, 0.15);
-        border-color: rgba(139, 92, 246, 0.3);
+        background: {theme_colors['sidebar_nav_hover']};
         color: {theme_colors['text_accent']};
+        border-left-color: #8b5cf6;
+        filter: brightness(1.1);
     }}
     
     /* TOP USER GREETING */
@@ -408,7 +410,7 @@ st.markdown(f"""
         margin-left: 0.3rem;
     }}
     
-    /* 3-STEP PROGRESS BAR */
+    /* HORIZONTAL 3-STEP PROGRESS BAR */
     .progress-container {{
         margin: 2rem auto 3rem;
         max-width: 700px;
@@ -561,7 +563,7 @@ st.markdown(f"""
         margin-bottom: 0.5rem !important;
     }}
     
-    /* UNIFIED BUTTON STYLING - GRADIENT LIKE REFERENCE */
+    /* UNIFIED BUTTON STYLING - GRADIENT */
     .stButton button, .stDownloadButton button {{
         background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #f97316 100%) !important;
         color: white !important;
@@ -835,7 +837,7 @@ st.markdown(f"""
         margin: 2rem 0;
     }}
     
-    /* MODAL OVERLAY */
+    /* MODAL OVERLAY - PROPER IMPLEMENTATION */
     .modal-overlay {{
         position: fixed;
         top: 0;
@@ -848,6 +850,12 @@ st.markdown(f"""
         display: flex;
         align-items: center;
         justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }}
+    
+    @keyframes fadeIn {{
+        from {{ opacity: 0; }}
+        to {{ opacity: 1; }}
     }}
     
     .modal-content {{
@@ -858,6 +866,51 @@ st.markdown(f"""
         max-width: 500px;
         width: 90%;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: slideUp 0.3s ease;
+    }}
+    
+    @keyframes slideUp {{
+        from {{ 
+            opacity: 0;
+            transform: translateY(20px);
+        }}
+        to {{ 
+            opacity: 1;
+            transform: translateY(0);
+        }}
+    }}
+    
+    /* USER INFO IN SIDEBAR */
+    .sidebar-user-info {{
+        padding: 1.5rem 1rem;
+        text-align: center;
+        margin-top: auto;
+        border-top: 1px solid {theme_colors['border_color']};
+    }}
+    
+    .sidebar-user-pic {{
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 0.75rem;
+        background: linear-gradient(135deg, #8b5cf6, #c4b5fd);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        border: 3px solid rgba(139, 92, 246, 0.3);
+    }}
+    
+    .sidebar-user-name {{
+        color: {theme_colors['text_primary']};
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }}
+    
+    .sidebar-user-email {{
+        color: {theme_colors['text_tertiary']};
+        font-size: 0.8rem;
     }}
     
     /* SUCCESS/ERROR MESSAGES */
@@ -865,6 +918,24 @@ st.markdown(f"""
         background: {theme_colors['bg_card']} !important;
         border-radius: 12px !important;
         border-left: 4px solid #8b5cf6 !important;
+    }}
+    
+    /* FILE UPLOADER STYLING */
+    .stFileUploader {{
+        background: {theme_colors['input_bg']} !important;
+        border: 1.5px dashed {theme_colors['border_color']} !important;
+        border-radius: 12px !important;
+        padding: 1.5rem !important;
+        transition: all 0.25s ease !important;
+    }}
+    
+    .stFileUploader:hover {{
+        border-color: #8b5cf6 !important;
+        background: {theme_colors['bg_card_hover']} !important;
+    }}
+    
+    [data-testid="stFileUploadDropzone"] {{
+        background: transparent !important;
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -893,7 +964,7 @@ with st.sidebar:
     
     st.markdown("<hr style='margin: 1rem 0; opacity: 0.3;'>", unsafe_allow_html=True)
     
-    # Navigation items
+    # Navigation items - using HTML with onclick JavaScript
     nav_items = [
         ("✨", "New Content", "new_content"),
         ("📁", "Saved Drafts", "history"),
@@ -901,14 +972,22 @@ with st.sidebar:
         ("👤", "Profile", "profile"),
     ]
     
+    # Create invisible buttons and use JS to trigger them
     for icon, label, page_key in nav_items:
         active_class = "active" if st.session_state.page == page_key else ""
         
-        nav_container = st.container()
-        with nav_container:
-            st.markdown(f'<div class="sidebar-nav-item {active_class}" id="nav_{page_key}">{icon} <span>{label}</span></div>', unsafe_allow_html=True)
+        # Use columns to create a clickable area
+        col = st.container()
+        with col:
+            st.markdown(f'''
+                <div class="sidebar-nav-item {active_class}" 
+                     onclick="document.getElementById('btn_{page_key}').click()">
+                    {icon} <span>{label}</span>
+                </div>
+            ''', unsafe_allow_html=True)
             
-            if st.button(f"_nav_{page_key}", key=f"btn_{page_key}"):
+            # Hidden button for actual navigation
+            if st.button(f"{label}", key=f"btn_{page_key}", help=f"Go to {label}"):
                 st.session_state.page = page_key
                 if page_key == "new_content":
                     st.session_state.step = "input"
@@ -916,28 +995,35 @@ with st.sidebar:
     
     st.markdown("<hr style='margin: 2rem 0 1rem 0; opacity: 0.3;'>", unsafe_allow_html=True)
     
-    # Theme Toggle Button
+    # Theme Toggle
     theme_icon = "🌙" if st.session_state.theme == "dark" else "☀️"
     theme_text = "Light Mode" if st.session_state.theme == "dark" else "Dark Mode"
     
-    st.markdown(f'<div class="theme-toggle">{theme_icon} {theme_text}</div>', unsafe_allow_html=True)
-    if st.button("Toggle Theme", key="theme_toggle_btn"):
+    st.markdown(f'''
+        <div class="theme-toggle" 
+             onclick="document.getElementById('theme_toggle_btn').click()">
+            {theme_icon} {theme_text}
+        </div>
+    ''', unsafe_allow_html=True)
+    
+    if st.button("Toggle", key="theme_toggle_btn", help="Toggle theme"):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
     
     st.markdown("<hr style='margin: 1rem 0; opacity: 0.3;'>", unsafe_allow_html=True)
     
-    # User section
+    # User section with name and email
     st.markdown(f"""
-        <div style="padding: 1rem; text-align: center; margin-top: auto;">
-            <div style="width: 60px; height: 60px; margin: 0 auto 0.75rem; background: linear-gradient(135deg, #8b5cf6, #c4b5fd); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; border: 3px solid rgba(139, 92, 246, 0.3);">
+        <div class="sidebar-user-info">
+            <div class="sidebar-user-pic">
                 {st.session_state.user_profile_pic}
             </div>
-            <div style="color: {theme_colors['text_tertiary']}; font-size: 0.85rem;">
-                {st.session_state.user_email}
-            </div>
+            <div class="sidebar-user-name">{st.session_state.user_name}</div>
+            <div class="sidebar-user-email">{st.session_state.user_email}</div>
         </div>
     """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
     
     if st.button("🚪 Logout", use_container_width=True, key="logout_btn"):
         for key in list(st.session_state.keys()):
@@ -945,18 +1031,19 @@ with st.sidebar:
         st.switch_page("pages/Login.py")
 
 # -------------------------------
-# PROGRESS BAR
+# PROGRESS BAR (HORIZONTAL)
 # -------------------------------
 def render_progress_bar():
-    """Render 3-step progress bar"""
+    """Render horizontal 3-step progress bar"""
     steps = [
         {"num": 1, "label": "Generate Prompts", "key": "input"},
         {"num": 2, "label": "Set Preferences", "key": "preferences"},
         {"num": 3, "label": "Generate Content", "key": "generation"}
     ]
     
+    # Determine current step index
     current_step_index = 0
-    if st.session_state.step == "prompt_selection":
+    if st.session_state.step in ["input", "prompt_selection"]:
         current_step_index = 0
     elif st.session_state.step == "preferences":
         current_step_index = 1
@@ -1003,41 +1090,50 @@ def render_progress_bar():
 # TEMPLATE SAVE MODAL
 # -------------------------------
 if st.session_state.get("show_template_save_modal", False):
-    st.markdown('<div class="modal-overlay">', unsafe_allow_html=True)
-    st.markdown('<div class="modal-content">', unsafe_allow_html=True)
+    # Create the modal UI
+    modal_container = st.container()
     
-    st.markdown("### 💾 Save as Template")
-    st.markdown("Give your template a name to save these preferences for future use.")
-    
-    template_name = st.text_input("Template Name", placeholder="e.g., My LinkedIn Strategy", key="template_name_input")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("💾 Save Template", use_container_width=True, key="confirm_save_template"):
-            if template_name.strip():
-                new_template = {
-                    "name": template_name,
-                    "content_type": st.session_state.content_type,
-                    "tone": st.session_state.tone,
-                    "audience": st.session_state.audience,
-                    "purpose": st.session_state.purpose,
-                    "word_limit": st.session_state.word_limit
-                }
-                st.session_state.user_templates.append(new_template)
-                st.session_state.show_template_save_modal = False
-                st.success(f"✅ Template '{template_name}' saved!")
-                time.sleep(1)
-                st.rerun()
-            else:
-                st.warning("⚠️ Please enter a template name")
-    
-    with col2:
-        if st.button("Cancel", use_container_width=True, key="cancel_save_template"):
-            st.session_state.show_template_save_modal = False
-            st.rerun()
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with modal_container:
+        st.markdown('<div class="modal-overlay"></div>', unsafe_allow_html=True)
+        
+        # Modal content
+        col1, col2, col3 = st.columns([1, 2, 1])
+        
+        with col2:
+            st.markdown('<div class="modal-content">', unsafe_allow_html=True)
+            
+            st.markdown("### 💾 Save as Template")
+            st.markdown("Give your template a name to save these preferences for future use.")
+            
+            template_name = st.text_input("Template Name", placeholder="e.g., My LinkedIn Strategy", key="template_name_input")
+            
+            col_a, col_b = st.columns(2)
+            
+            with col_a:
+                if st.button("💾 Save Template", use_container_width=True, key="confirm_save_template"):
+                    if template_name.strip():
+                        new_template = {
+                            "name": template_name,
+                            "content_type": st.session_state.content_type,
+                            "tone": st.session_state.tone,
+                            "audience": st.session_state.audience,
+                            "purpose": st.session_state.purpose,
+                            "word_limit": st.session_state.word_limit
+                        }
+                        st.session_state.user_templates.append(new_template)
+                        st.session_state.show_template_save_modal = False
+                        st.success(f"✅ Template '{template_name}' saved!")
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Please enter a template name")
+            
+            with col_b:
+                if st.button("Cancel", use_container_width=True, key="cancel_save_template"):
+                    st.session_state.show_template_save_modal = False
+                    st.rerun()
+            
+            st.markdown('</div>', unsafe_allow_html=True)
 
 # -------------------------------
 # MAIN CONTENT AREA
@@ -1256,7 +1352,6 @@ Create engaging, authentic content that resonates with the target audience."""
             # CONTENT EVALUATION SECTION
             st.markdown("<br><br>", unsafe_allow_html=True)
             
-            # Introduction card for evaluation
             st.markdown(f"""
                 <div class="evaluation-intro">
                     <div class="evaluation-intro-title">📊 Content Quality Analysis</div>
@@ -1267,7 +1362,6 @@ Create engaging, authentic content that resonates with the target audience."""
                 </div>
             """, unsafe_allow_html=True)
             
-            # Evaluation button
             if not st.session_state.show_evaluation:
                 if st.button("✨ Analyze Content Quality", use_container_width=True, key="evaluate_btn"):
                     with st.spinner("🔍 Analyzing your content..."):
@@ -1283,7 +1377,6 @@ Create engaging, authentic content that resonates with the target audience."""
                             st.session_state.show_evaluation = True
                             st.rerun()
             
-            # Display evaluation results
             if st.session_state.show_evaluation and st.session_state.evaluation_scores:
                 st.markdown('<div class="evaluation-results">', unsafe_allow_html=True)
                 
@@ -1310,7 +1403,6 @@ Create engaging, authentic content that resonates with the target audience."""
                         </div>
                     """, unsafe_allow_html=True)
                 
-                # Overall score
                 overall = st.session_state.evaluation_scores.get("overall", 0)
                 st.markdown(f"""
                     <div class="evaluation-metric overall-score">
@@ -1326,7 +1418,6 @@ Create engaging, authentic content that resonates with the target audience."""
                 
                 st.markdown('</div>', unsafe_allow_html=True)
                 
-                # Hide evaluation button
                 if st.button("🔄 Re-analyze", use_container_width=True, key="reanalyze_btn"):
                     st.session_state.show_evaluation = False
                     st.session_state.evaluation_scores = None
@@ -1511,11 +1602,15 @@ elif st.session_state.page == "profile":
                         {st.session_state.user_profile_pic}
                     </div>
                 </div>
-                <div style="margin-top: 1rem; color: {theme_colors['text_secondary']}; font-size: 0.85rem;">Click to change</div>
+                <div style="margin-top: 1rem; color: {theme_colors['text_secondary']}; font-size: 0.85rem;">Change profile picture</div>
             </div>
         """, unsafe_allow_html=True)
         
-        new_pic = st.text_input("Profile Emoji", value=st.session_state.user_profile_pic, max_chars=2, placeholder="👤", label_visibility="collapsed", key="profile_pic_input")
+        # File uploader for profile picture
+        uploaded_file = st.file_uploader("Upload Profile Picture", type=['png', 'jpg', 'jpeg'], label_visibility="collapsed", key="profile_pic_upload")
+        
+        st.markdown("<div style='text-align: center; margin-top: 0.5rem; color: " + theme_colors['text_tertiary'] + "; font-size: 0.8rem;'>Or use emoji:</div>", unsafe_allow_html=True)
+        new_pic = st.text_input("Emoji", value=st.session_state.user_profile_pic, max_chars=2, placeholder="👤", label_visibility="collapsed", key="profile_pic_input")
     
     with col2:
         name = st.text_input("Full Name", value=st.session_state.user_name, placeholder="John Doe")
@@ -1528,6 +1623,9 @@ elif st.session_state.page == "profile":
         with col_save:
             if st.button("💾 Save Changes", use_container_width=True):
                 st.session_state.user_name = name
+                if uploaded_file is not None:
+                    # In a real implementation, you would save the file and update the profile pic
+                    st.info("📁 Image upload feature coming soon! Using emoji for now.")
                 st.session_state.user_profile_pic = new_pic if new_pic else "👤"
                 st.success("✅ Profile updated successfully!")
                 time.sleep(1)
