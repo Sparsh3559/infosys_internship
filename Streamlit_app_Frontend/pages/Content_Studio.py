@@ -908,7 +908,7 @@ with st.sidebar:
         with nav_container:
             st.markdown(f'<div class="sidebar-nav-item {active_class}" id="nav_{page_key}">{icon} <span>{label}</span></div>', unsafe_allow_html=True)
             
-            if st.button(label, key=f"btn_{page_key}", label_visibility="collapsed"):
+            if st.button(f"_nav_{page_key}", key=f"btn_{page_key}"):
                 st.session_state.page = page_key
                 if page_key == "new_content":
                     st.session_state.step = "input"
