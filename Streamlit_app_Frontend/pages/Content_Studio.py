@@ -1065,76 +1065,7 @@ def render_progress_bar():
 # -------------------------------
 # TEMPLATE SAVE MODAL
 # -------------------------------
-if st.session_state.get("show_template_save_modal", False):
-    # Create the modal overlay and content in a proper container
-    st.markdown("""
-        <style>
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    # Use Streamlit's dialog-like approach
-    col1, col2, col3 = st.columns([1, 2, 1])
-    
-    with col2:
-        st.markdown("""
-            <div style="
-                background: rgba(31, 41, 55, 0.95);
-                border: 1px solid rgba(139, 92, 246, 0.3);
-                border-radius: 20px;
-                padding: 2.5rem;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-                margin-top: 5rem;
-            ">
-        """, unsafe_allow_html=True)
-        
-        st.markdown("### 💾 Save as Template")
-        st.markdown("Give your template a name to save these preferences for future use.")
-        
-        template_name = st.text_input("Template Name", placeholder="e.g., My LinkedIn Strategy", key="template_name_input")
-        
-        col_a, col_b = st.columns(2)
-        
-        with col_a:
-            if st.button("💾 Save Template", use_container_width=True, key="confirm_save_template"):
-                if template_name.strip():
-                    new_template = {
-                        "name": template_name,
-                        "content_type": st.session_state.content_type,
-                        "tone": st.session_state.tone,
-                        "audience": st.session_state.audience,
-                        "purpose": st.session_state.purpose,
-                        "word_limit": st.session_state.word_limit
-                    }
-                    st.session_state.user_templates.append(new_template)
-                    st.session_state.show_template_save_modal = False
-                    st.success(f"✅ Template '{template_name}' saved!")
-                    time.sleep(1)
-                    st.rerun()
-                else:
-                    st.warning("⚠️ Please enter a template name")
-        
-        with col_b:
-            if st.button("Cancel", use_container_width=True, key="cancel_save_template"):
-                st.session_state.show_template_save_modal = False
-                st.rerun()
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Stop rendering the rest of the page when modal is open
-    st.stop()
+# This section is now integrated into the generation page where it's needed
 
 # -------------------------------
 # MAIN CONTENT AREA
@@ -1329,6 +1260,43 @@ Create engaging, authentic content that resonates with the target audience."""
                 if st.button("💾 Save as Template", use_container_width=True):
                     st.session_state.show_template_save_modal = True
                     st.rerun()
+            
+            # Show modal inline if triggered
+            if st.session_state.get("show_template_save_modal", False):
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown('<div class="content-card">', unsafe_allow_html=True)
+                st.markdown("### 💾 Save as Template")
+                st.markdown("Give your template a name to save these preferences for future use.")
+                
+                template_name = st.text_input("Template Name", placeholder="e.g., My LinkedIn Strategy", key="template_name_input")
+                
+                col_a, col_b = st.columns(2)
+                
+                with col_a:
+                    if st.button("💾 Save Template", use_container_width=True, key="confirm_save_template"):
+                        if template_name.strip():
+                            new_template = {
+                                "name": template_name,
+                                "content_type": st.session_state.content_type,
+                                "tone": st.session_state.tone,
+                                "audience": st.session_state.audience,
+                                "purpose": st.session_state.purpose,
+                                "word_limit": st.session_state.word_limit
+                            }
+                            st.session_state.user_templates.append(new_template)
+                            st.session_state.show_template_save_modal = False
+                            st.success(f"✅ Template '{template_name}' saved!")
+                            time.sleep(1)
+                            st.rerun()
+                        else:
+                            st.warning("⚠️ Please enter a template name")
+                
+                with col_b:
+                    if st.button("Cancel", use_container_width=True, key="cancel_save_template"):
+                        st.session_state.show_template_save_modal = False
+                        st.rerun()
+                
+                st.markdown('</div>', unsafe_allow_html=True)
             
             with col3:
                 if st.button("🔄 Regenerate", use_container_width=True):
