@@ -331,6 +331,30 @@ st.markdown(f"""
         display: none !important;
     }}
     
+    /* FORCE SIDEBAR TO BE VISIBLE AND EXPANDED */
+    section[data-testid="stSidebar"] {{
+        display: block !important;
+        visibility: visible !important;
+        transform: translateX(0) !important;
+        position: relative !important;
+        width: 21rem !important;
+        min-width: 21rem !important;
+    }}
+    
+    section[data-testid="stSidebar"][aria-expanded="false"] {{
+        transform: translateX(0) !important;
+        margin-left: 0 !important;
+    }}
+    
+    /* HIDE THE COLLAPSE BUTTON COMPLETELY */
+    [data-testid="stSidebar"] button[kind="header"],
+    [data-testid="collapsedControl"],
+    button[aria-label="Close sidebar"] {{
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }}
+    
     /* SIDEBAR STYLING */
     [data-testid="stSidebar"] {{
         background: linear-gradient(180deg, {theme_colors['bg_secondary']} 0%, {theme_colors['bg_tertiary']} 100%) !important;
@@ -1717,3 +1741,13 @@ elif st.session_state.page == "profile":
             """, unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
+
+
+
+
+
+
+
+
+
+

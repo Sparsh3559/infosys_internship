@@ -289,7 +289,6 @@ API_BASE = "https://infosys-internship-backend.onrender.com"
 # -----------------------------------
 # REGISTER UI
 # -----------------------------------
-st.markdown('<div class="register-box">', unsafe_allow_html=True)
 
 st.markdown("""
     <div class="register-header">

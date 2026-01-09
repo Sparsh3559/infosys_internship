@@ -267,7 +267,6 @@ API_BASE = "https://infosys-internship-backend.onrender.com"
 # -----------------------------------
 # LOGIN UI
 # -----------------------------------
-st.markdown('<div class="login-box">', unsafe_allow_html=True)
 
 st.markdown("""
     <div class="login-header">

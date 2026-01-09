@@ -344,8 +344,6 @@ if params.get("status") == "verified":
 elif "jwt" in params:
     st.session_state["jwt"] = unquote(params["jwt"])
     st.session_state["email"] = params.get("email")
-
-    st.markdown('<div class="verify-box">', unsafe_allow_html=True)
     
     st.markdown("""
         <div class="verify-header">
