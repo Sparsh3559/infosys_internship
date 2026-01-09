@@ -1,9 +1,11 @@
 import streamlit as st
 from urllib.parse import unquote
 import time
+import os
+import base64
 
 # -----------------------------------
-# PAGE CONFIG + HIDE SIDEBAR
+# PAGE CONFIG
 # -----------------------------------
 st.set_page_config(
     page_title="Verification - AI Content Studio",
@@ -11,269 +13,270 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown(
-    """
-    <style>
-        [data-testid="stSidebar"] { display: none; }
-        [data-testid="stSidebarNav"] { display: none; }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # -----------------------------------
-# MODERN STYLING (SAME AS REGISTER)
+# HIDE SIDEBAR & HEADER
 # -----------------------------------
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    /* ===== GLOBAL RESET ===== */
-    * {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    
-    html, body, [data-testid="stApp"] {
-        background: linear-gradient(135deg, #1a1d29 0%, #0f1117 100%);
-        color: #e5e7eb;
-    }
+<style>
+[data-testid="stSidebar"] { display: none; }
+[data-testid="stSidebarNav"] { display: none; }
+header[data-testid="stHeader"] { display: none; }
+</style>
+""", unsafe_allow_html=True)
 
-    /* ===== MAIN CONTAINER ===== */
-    .block-container {
-        background-color: transparent;
-        padding-top: 4rem;
-        max-width: 520px;
-        margin: 0 auto;
-    }
+# -----------------------------------
+# LOAD BACKGROUND IMAGE
+# -----------------------------------
+def load_bg_image(relative_path):
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.normpath(os.path.join(base_dir, "..", relative_path))
+        
+        if not os.path.exists(image_path):
+            alt_paths = [
+                os.path.join(base_dir, relative_path),
+                os.path.join(os.getcwd(), relative_path),
+            ]
+            
+            for alt_path in alt_paths:
+                if os.path.exists(alt_path):
+                    image_path = alt_path
+                    break
+            else:
+                return None
+        
+        with open(image_path, "rb") as f:
+            return base64.b64encode(f.read()).decode()
+    except Exception as e:
+        return None
 
-    /* ===== HIDE DEFAULT HEADERS ===== */
-    header[data-testid="stHeader"] {
-        display: none;
-    }
+bg_image = load_bg_image("assets/bg_copy.jpg")
 
-    /* ===== CUSTOM LOGO/TITLE ===== */
-    .verification-header {
-        text-align: center;
-        margin-bottom: 2.5rem;
-    }
+# -----------------------------------
+# MODERN UNIFIED STYLING
+# -----------------------------------
+st.markdown(f"""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    .verification-logo {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-        animation: pulse 2s ease-in-out infinite;
-    }
+* {{
+    font-family: 'Inter', sans-serif;
+}}
 
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.05); opacity: 0.9; }
-    }
+html, body, [data-testid="stApp"] {{
+    {f'''background:
+        linear-gradient(rgba(10,10,20,0.88), rgba(10,10,20,0.88)),
+        url("data:image/jpg;base64,{bg_image}");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;''' if bg_image else 'background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);'}
+    color: #e5e7eb;
+    margin: 0;
+    padding: 0;
+}}
 
-    .verification-title {
-        font-size: 2rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.02em;
-    }
+.block-container {{
+    max-width: 520px;
+    padding-top: 5rem;
+    margin: auto;
+}}
 
-    .verification-subtitle {
-        color: #9ca3af;
-        font-size: 1rem;
-        font-weight: 400;
-        letter-spacing: 0.01em;
-    }
+/* VERIFICATION CARD */
+.verify-box {{
+    background: rgba(17, 24, 39, 0.75);
+    backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 22px;
+    padding: 2.8rem;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.55);
+    animation: fadeInUp 0.6s ease;
+}}
 
-    /* ===== VERIFICATION CARD ===== */
-    .verification-card {
-        background: rgba(31, 41, 55, 0.5);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        padding: 2.5rem;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+@keyframes fadeInUp {{
+    from {{
+        opacity: 0;
+        transform: translateY(20px);
+    }}
+    to {{
+        opacity: 1;
+        transform: translateY(0);
+    }}
+}}
 
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+.verify-title {{
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.4rem;
+    background: linear-gradient(135deg, #a5b4fc, #c4b5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}}
 
-    /* ===== STATUS ICONS ===== */
-    .status-icon {
-        font-size: 4rem;
-        margin: 1.5rem 0;
-        text-align: center;
-    }
+.verify-subtitle {{
+    text-align: center;
+    color: #9ca3af;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}}
 
-    .success-icon {
-        animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
+/* STATUS ICONS */
+.status-icon {{
+    font-size: 4rem;
+    text-align: center;
+    margin: 1.5rem 0;
+}}
 
-    .error-icon {
-        animation: shake 0.5s ease-in-out;
-    }
+.success-icon {{
+    animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}}
 
-    @keyframes successPop {
-        0% { transform: scale(0) rotate(-180deg); }
-        50% { transform: scale(1.2) rotate(10deg); }
-        100% { transform: scale(1) rotate(0deg); }
-    }
+.error-icon {{
+    animation: shake 0.5s ease-in-out;
+}}
 
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        75% { transform: translateX(10px); }
-    }
+@keyframes successPop {{
+    0% {{ transform: scale(0) rotate(-180deg); }}
+    50% {{ transform: scale(1.2) rotate(10deg); }}
+    100% {{ transform: scale(1) rotate(0deg); }}
+}}
 
-    /* ===== PRIMARY BUTTON ===== */
-    .stButton button[kind="primary"],
-    .stButton button:not([kind="secondary"]) {
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 16px 32px !important;
-        font-weight: 600 !important;
-        font-size: 16px !important;
-        width: 100% !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4) !important;
-        letter-spacing: 0.02em !important;
-        margin-top: 1rem !important;
-    }
+@keyframes shake {{
+    0%, 100% {{ transform: translateX(0); }}
+    25% {{ transform: translateX(-10px); }}
+    75% {{ transform: translateX(10px); }}
+}}
 
-    .stButton button[kind="primary"]:hover,
-    .stButton button:not([kind="secondary"]):hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 8px 28px rgba(99, 102, 241, 0.5) !important;
-    }
+/* UNIFIED GRADIENT BUTTONS */
+.stButton button {{
+    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+    border: none !important;
+    border-radius: 14px !important;
+    padding: 14px !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    width: 100%;
+    color: white !important;
+    box-shadow: 0 10px 30px rgba(99,102,241,0.4);
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    margin-top: 0.5rem !important;
+}}
 
-    .stButton button[kind="primary"]:active,
-    .stButton button:not([kind="secondary"]):active {
-        transform: translateY(0) !important;
-    }
+.stButton button:hover {{
+    transform: translateY(-2px) !important;
+    box-shadow: 0 15px 40px rgba(99,102,241,0.5) !important;
+}}
 
-    /* ===== SECONDARY BUTTONS ===== */
-    .stButton button[kind="secondary"] {
-        background: rgba(99, 102, 241, 0.1) !important;
-        color: #a5b4fc !important;
-        border: 1px solid rgba(99, 102, 241, 0.3) !important;
-        border-radius: 12px !important;
-        padding: 14px 28px !important;
-        font-weight: 600 !important;
-        font-size: 15px !important;
-        width: 100% !important;
-        transition: all 0.3s ease !important;
-        margin-top: 0.5rem !important;
-    }
+.stButton button:active {{
+    transform: translateY(0px) !important;
+}}
 
-    .stButton button[kind="secondary"]:hover {
-        background: rgba(99, 102, 241, 0.15) !important;
-        border-color: rgba(99, 102, 241, 0.5) !important;
-        transform: translateY(-1px) !important;
-    }
+/* BENEFITS SECTION */
+.benefits-card {{
+    background: rgba(31, 41, 55, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}}
 
-    /* ===== ALERTS/MESSAGES ===== */
-    .stAlert {
-        border-radius: 12px !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        backdrop-filter: blur(10px) !important;
-        margin-top: 1rem !important;
-        animation: slideIn 0.4s ease-out;
-    }
+.benefit-item {{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #d1d5db;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding: 8px 0;
+}}
 
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateX(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
+.benefit-item:last-child {{
+    margin-bottom: 0;
+}}
 
-    /* ===== CAPTIONS ===== */
-    .caption, [data-testid="stCaptionContainer"] {
-        color: #9ca3af !important;
-        font-size: 14px !important;
-        text-align: center !important;
-        letter-spacing: 0.01em !important;
-    }
+.benefit-icon {{
+    font-size: 18px;
+    min-width: 24px;
+}}
 
-    /* ===== DIVIDER ===== */
-    hr {
-        border: none;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-        margin: 2rem 0 1.5rem 0;
-    }
+/* PROGRESS INDICATOR */
+.progress-dots {{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 1.5rem 0;
+}}
 
-    /* ===== BENEFITS LIST ===== */
-    .benefits-list {
-        background: rgba(17, 24, 39, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin: 1.5rem 0;
-    }
+.progress-dot {{
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.4);
+    animation: pulse-dot 1.5s ease-in-out infinite;
+}}
 
-    .benefit-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #d1d5db;
-        font-size: 14px;
-        margin-bottom: 12px;
-    }
+.progress-dot:nth-child(2) {{
+    animation-delay: 0.3s;
+}}
 
-    .benefit-item:last-child {
-        margin-bottom: 0;
-    }
+.progress-dot:nth-child(3) {{
+    animation-delay: 0.6s;
+}}
 
-    .benefit-icon {
-        font-size: 18px;
-    }
+@keyframes pulse-dot {{
+    0%, 100% {{ transform: scale(1); opacity: 0.4; }}
+    50% {{ transform: scale(1.5); opacity: 1; background: #6366f1; }}
+}}
 
-    /* ===== PROGRESS INDICATOR ===== */
-    .progress-dots {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin: 1.5rem 0;
-    }
+/* SUCCESS/WARNING/ERROR MESSAGES */
+.stAlert {{
+    border-radius: 12px !important;
+    backdrop-filter: blur(10px);
+    margin: 1rem 0 !important;
+}}
 
-    .progress-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: rgba(99, 102, 241, 0.3);
-        animation: pulse-dot 1.5s ease-in-out infinite;
-    }
+.stSuccess {{
+    background: rgba(34, 197, 94, 0.15) !important;
+    border: 1px solid rgba(34, 197, 94, 0.3) !important;
+    color: #86efac !important;
+}}
 
-    .progress-dot:nth-child(2) {
-        animation-delay: 0.3s;
-    }
+.stWarning {{
+    background: rgba(251, 191, 36, 0.15) !important;
+    border: 1px solid rgba(251, 191, 36, 0.3) !important;
+    color: #fde047 !important;
+}}
 
-    .progress-dot:nth-child(3) {
-        animation-delay: 0.6s;
-    }
+.stError {{
+    background: rgba(239, 68, 68, 0.15) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    color: #fca5a5 !important;
+}}
 
-    @keyframes pulse-dot {
-        0%, 100% { transform: scale(1); opacity: 0.3; }
-        50% { transform: scale(1.5); opacity: 1; }
-    }
-    </style>
+.stInfo {{
+    background: rgba(59, 130, 246, 0.15) !important;
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+    color: #93c5fd !important;
+}}
+
+/* CAPTION */
+.caption {{
+    text-align: center;
+    color: #9ca3af;
+    font-size: 14px;
+    margin-top: 1rem;
+}}
+
+/* DIVIDER */
+hr {{
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    margin: 2rem 0;
+}}
+</style>
 """, unsafe_allow_html=True)
 
 # -----------------------------------
@@ -285,15 +288,10 @@ params = st.query_params
 # EMAIL VERIFICATION SUCCESS
 # -----------------------------------
 if params.get("status") == "verified":
-    st.markdown("""
-        <div class="verification-header">
-            <div class="verification-logo">✅</div>
-            <h1 class="verification-title">Email Verified</h1>
-            <p class="verification-subtitle">Your account is now active</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="verify-box">', unsafe_allow_html=True)
     
-    st.markdown('<div class="verification-card">', unsafe_allow_html=True)
+    st.markdown('<div class="verify-title">Email Verified</div>', unsafe_allow_html=True)
+    st.markdown('<div class="verify-subtitle">Your account is now active</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="status-icon success-icon">🎉</div>', unsafe_allow_html=True)
     
@@ -301,7 +299,7 @@ if params.get("status") == "verified":
     st.info("🔓 Your account is now fully activated and ready to use")
     
     st.markdown("""
-        <div class="benefits-list">
+        <div class="benefits-card">
             <div class="benefit-item">
                 <span class="benefit-icon">✓</span>
                 <span>Email verified successfully</span>
@@ -317,9 +315,9 @@ if params.get("status") == "verified":
         </div>
     """, unsafe_allow_html=True)
 
-    st.caption("You can now log in and access all features")
+    st.markdown('<div class="caption">You can now log in and access all features</div>', unsafe_allow_html=True)
 
-    if st.button("→ Proceed to Login", key="proceed_login", type="primary"):
+    if st.button("→ Proceed to Login", key="proceed_login"):
         st.switch_page("pages/Login.py")
     
     st.markdown('</div>', unsafe_allow_html=True)
@@ -331,15 +329,10 @@ elif "jwt" in params:
     st.session_state["jwt"] = unquote(params["jwt"])
     st.session_state["email"] = params.get("email")
 
-    st.markdown("""
-        <div class="verification-header">
-            <div class="verification-logo">🔐</div>
-            <h1 class="verification-title">Login Successful</h1>
-            <p class="verification-subtitle">Welcome back to AI Content Studio</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="verify-box">', unsafe_allow_html=True)
     
-    st.markdown('<div class="verification-card">', unsafe_allow_html=True)
+    st.markdown('<div class="verify-title">Login Successful</div>', unsafe_allow_html=True)
+    st.markdown('<div class="verify-subtitle">Welcome back to AI Content Studio</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="status-icon success-icon">✅</div>', unsafe_allow_html=True)
     
@@ -349,7 +342,7 @@ elif "jwt" in params:
         st.info(f"📧 Logged in as: {st.session_state['email']}")
     
     st.markdown("""
-        <div class="benefits-list">
+        <div class="benefits-card">
             <div class="benefit-item">
                 <span class="benefit-icon">✓</span>
                 <span>Authentication complete</span>
@@ -373,7 +366,7 @@ elif "jwt" in params:
         </div>
     """, unsafe_allow_html=True)
 
-    st.caption("Please wait while we prepare your workspace")
+    st.markdown('<div class="caption">Please wait while we prepare your workspace</div>', unsafe_allow_html=True)
 
     # Auto-redirect after brief delay
     time.sleep(2)
@@ -385,15 +378,10 @@ elif "jwt" in params:
 # INVALID / EXPIRED LINK
 # -----------------------------------
 else:
-    st.markdown("""
-        <div class="verification-header">
-            <div class="verification-logo">⚠️</div>
-            <h1 class="verification-title">Invalid Link</h1>
-            <p class="verification-subtitle">Unable to verify your request</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="verify-box">', unsafe_allow_html=True)
     
-    st.markdown('<div class="verification-card">', unsafe_allow_html=True)
+    st.markdown('<div class="verify-title">Invalid Link</div>', unsafe_allow_html=True)
+    st.markdown('<div class="verify-subtitle">Unable to verify your request</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="status-icon error-icon">❌</div>', unsafe_allow_html=True)
     
@@ -401,7 +389,7 @@ else:
     st.warning("⚠️ Verification links are valid for a limited time only")
     
     st.markdown("""
-        <div class="benefits-list">
+        <div class="benefits-card">
             <div class="benefit-item">
                 <span class="benefit-icon">ℹ️</span>
                 <span>Request a new verification link</span>
@@ -417,18 +405,18 @@ else:
         </div>
     """, unsafe_allow_html=True)
 
-    st.caption("Need help? Try requesting a new link or logging in again")
+    st.markdown('<div class="caption">Need help? Try requesting a new link or logging in again</div>', unsafe_allow_html=True)
 
     st.markdown("---")
 
     col1, col2 = st.columns(2)
     
     with col1:
-        if st.button("← Back to Login", key="back_login", type="secondary"):
+        if st.button("← Back to Login", key="back_login"):
             st.switch_page("pages/Login.py")
     
     with col2:
-        if st.button("Create Account →", key="back_register", type="secondary"):
+        if st.button("Create Account →", key="back_register"):
             st.switch_page("pages/Register.py")
     
     st.markdown('</div>', unsafe_allow_html=True)

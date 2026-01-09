@@ -36,6 +36,6 @@ if "jwt" in st.session_state:
     st.switch_page("pages/Content_Studio.py")
     st.stop()
 
-# ✅ Default: Register
-st.switch_page("pages/Register.py")
+# ✅ Default: Home (Landing Page)
+st.switch_page("Home.py")
 st.stop()
