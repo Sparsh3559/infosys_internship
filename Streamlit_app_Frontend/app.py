@@ -37,5 +37,5 @@ if "jwt" in st.session_state:
     st.stop()
 
 # ✅ Default: Home (Landing Page)
-st.switch_page("Home.py")
+st.switch_page("pages/Home.py")
 st.stop()
