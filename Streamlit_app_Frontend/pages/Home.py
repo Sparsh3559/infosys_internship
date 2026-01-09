@@ -82,20 +82,31 @@ st.markdown("""
         position: fixed;
         top: 0;
         width: 100%;
-        background: rgba(15, 23, 42, 0.8);
+        background: rgba(15, 23, 42, 0.95);
         backdrop-filter: blur(20px);
         padding: 1rem 3rem;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        z-index: 1000;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        max-width: 1400px;
+        margin: 0 auto;
     }
     
     .logo-section {
         display: flex;
         align-items: center;
         gap: 1rem;
+    }
+    
+    .nav-buttons {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
     }
     
     .logo-icon {
@@ -417,27 +428,96 @@ st.markdown("""
 # -------------------------------
 st.markdown("""
     <div class="nav-container">
-        <div class="logo-section">
-            <div class="logo-icon">✨</div>
-            <div class="logo-text">
-                <h1>AI Content Studio</h1>
-                <p>Craft. Refine. Publish.</p>
+        <div class="nav-content">
+            <div class="logo-section">
+                <div class="logo-icon">✨</div>
+                <div class="logo-text">
+                    <h1>AI Content Studio</h1>
+                    <p>Craft. Refine. Publish.</p>
+                </div>
             </div>
+            <div class="nav-buttons"></div>
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# Navigation buttons
-col1, col2, col3, col4 = st.columns([7, 1, 1, 1])
-with col2:
+# Navigation buttons - positioned after navbar
+st.markdown('<div style="height: 80px;"></div>', unsafe_allow_html=True)  # Spacer for fixed navbar
+
+# Create invisible container for proper spacing
+nav_col1, nav_col2, nav_col3, nav_col4, nav_col5 = st.columns([6, 1, 1, 1, 1])
+
+with nav_col2:
+    st.markdown("")  # Empty for spacing
+    
+with nav_col3:
     if st.button("Login", key="nav_login", use_container_width=True):
         st.switch_page("pages/Login.py")
-with col3:
+        
+with nav_col4:
     if st.button("Sign Up", key="nav_signup", use_container_width=True):
         st.switch_page("pages/Register.py")
-with col4:
+        
+with nav_col5:
     if st.button("Demo", key="nav_demo", use_container_width=True):
         st.switch_page("pages/Content_Studio.py")
+
+# Add CSS to position buttons in navbar
+st.markdown("""
+    <style>
+    /* Position buttons container at top */
+    .stButton {
+        position: fixed;
+        top: 1rem;
+        right: 3rem;
+        z-index: 1001;
+    }
+    
+    /* Style for nav buttons specifically */
+    div[data-testid="column"]:has(button[key^="nav_"]) {
+        position: fixed;
+        top: 1.2rem;
+        z-index: 1001;
+    }
+    
+    div[data-testid="column"]:has(button[key="nav_login"]) {
+        right: 23rem;
+    }
+    
+    div[data-testid="column"]:has(button[key="nav_signup"]) {
+        right: 13rem;
+    }
+    
+    div[data-testid="column"]:has(button[key="nav_demo"]) {
+        right: 3rem;
+    }
+    
+    /* Nav button styling */
+    button[key^="nav_"] {
+        background: transparent !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 25px !important;
+        padding: 0.6rem 1.5rem !important;
+        font-size: 0.9rem !important;
+        box-shadow: none !important;
+    }
+    
+    button[key^="nav_"]:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: rgba(255, 255, 255, 0.5) !important;
+    }
+    
+    button[key="nav_signup"] {
+        background: linear-gradient(135deg, #ec4899, #f97316) !important;
+        border: none !important;
+        box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4) !important;
+    }
+    
+    button[key="nav_signup"]:hover {
+        box-shadow: 0 6px 30px rgba(236, 72, 153, 0.6) !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # -------------------------------
 # HERO SECTION
