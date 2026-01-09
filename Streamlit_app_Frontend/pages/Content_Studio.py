@@ -5,6 +5,7 @@ import re
 import sys
 import os
 import json
+import base64
 from datetime import datetime
 
 # -------------------------------
@@ -989,10 +990,18 @@ with st.sidebar:
     st.markdown("<hr style='margin: 1rem 0; opacity: 0.3;'>", unsafe_allow_html=True)
     
     # User section with name and email
+    user_pic_display = st.session_state.user_profile_pic
+    
+    # Check if it's a base64 image or emoji
+    if st.session_state.user_profile_pic.startswith('data:image'):
+        pic_html = f'<img src="{st.session_state.user_profile_pic}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />'
+    else:
+        pic_html = st.session_state.user_profile_pic
+    
     st.markdown(f"""
         <div class="sidebar-user-info">
             <div class="sidebar-user-pic">
-                {st.session_state.user_profile_pic}
+                {pic_html}
             </div>
             <div class="sidebar-user-name">{st.session_state.user_name}</div>
             <div class="sidebar-user-email">{st.session_state.user_email}</div>
@@ -1261,7 +1270,27 @@ Create engaging, authentic content that resonates with the target audience."""
                     st.session_state.show_template_save_modal = True
                     st.rerun()
             
-            # Show modal inline if triggered
+            with col3:
+                if st.button("🔄 Regenerate", use_container_width=True):
+                    st.session_state.final_content = None
+                    st.session_state.show_evaluation = False
+                    st.session_state.evaluation_scores = None
+                    st.rerun()
+            
+            with col4:
+                if st.button("🆕 New Content", use_container_width=True):
+                    st.session_state.step = "input"
+                    st.session_state.final_content = None
+                    st.session_state.user_idea = ""
+                    st.session_state.content_type = None
+                    st.session_state.tone = None
+                    st.session_state.audience = None
+                    st.session_state.purpose = None
+                    st.session_state.show_evaluation = False
+                    st.session_state.evaluation_scores = None
+                    st.rerun()
+            
+            # Show template save modal AFTER buttons if triggered
             if st.session_state.get("show_template_save_modal", False):
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown('<div class="content-card">', unsafe_allow_html=True)
@@ -1298,26 +1327,6 @@ Create engaging, authentic content that resonates with the target audience."""
                 
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            with col3:
-                if st.button("🔄 Regenerate", use_container_width=True):
-                    st.session_state.final_content = None
-                    st.session_state.show_evaluation = False
-                    st.session_state.evaluation_scores = None
-                    st.rerun()
-            
-            with col4:
-                if st.button("🆕 New Content", use_container_width=True):
-                    st.session_state.step = "input"
-                    st.session_state.final_content = None
-                    st.session_state.user_idea = ""
-                    st.session_state.content_type = None
-                    st.session_state.tone = None
-                    st.session_state.audience = None
-                    st.session_state.purpose = None
-                    st.session_state.show_evaluation = False
-                    st.session_state.evaluation_scores = None
-                    st.rerun()
-            
             # CONTENT EVALUATION SECTION
             st.markdown("<br><br>", unsafe_allow_html=True)
             
@@ -1346,6 +1355,7 @@ Create engaging, authentic content that resonates with the target audience."""
                             st.session_state.show_evaluation = True
                             st.rerun()
             
+            # Show evaluation results AFTER the button is clicked
             if st.session_state.show_evaluation and st.session_state.evaluation_scores:
                 st.markdown('<div class="evaluation-results">', unsafe_allow_html=True)
                 
@@ -1564,11 +1574,17 @@ elif st.session_state.page == "profile":
     col1, col2 = st.columns([1, 2])
     
     with col1:
+        # Display current profile picture
+        if st.session_state.user_profile_pic.startswith('data:image'):
+            pic_display = f'<img src="{st.session_state.user_profile_pic}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />'
+        else:
+            pic_display = st.session_state.user_profile_pic
+        
         st.markdown(f"""
             <div style="text-align: center; padding: 2rem 1rem;">
                 <div class="profile-pic-container">
                     <div class="profile-pic">
-                        {st.session_state.user_profile_pic}
+                        {pic_display}
                     </div>
                 </div>
                 <div style="margin-top: 1rem; color: {theme_colors['text_secondary']}; font-size: 0.85rem;">Change profile picture</div>
@@ -1579,7 +1595,7 @@ elif st.session_state.page == "profile":
         uploaded_file = st.file_uploader("Upload Profile Picture", type=['png', 'jpg', 'jpeg'], label_visibility="collapsed", key="profile_pic_upload")
         
         st.markdown("<div style='text-align: center; margin-top: 0.5rem; color: " + theme_colors['text_tertiary'] + "; font-size: 0.8rem;'>Or use emoji:</div>", unsafe_allow_html=True)
-        new_pic = st.text_input("Emoji", value=st.session_state.user_profile_pic, max_chars=2, placeholder="👤", label_visibility="collapsed", key="profile_pic_input")
+        new_pic = st.text_input("Emoji", value=st.session_state.user_profile_pic if not st.session_state.user_profile_pic.startswith('data:image') else "👤", max_chars=2, placeholder="👤", label_visibility="collapsed", key="profile_pic_input")
     
     with col2:
         name = st.text_input("Full Name", value=st.session_state.user_name, placeholder="John Doe")
@@ -1592,10 +1608,18 @@ elif st.session_state.page == "profile":
         with col_save:
             if st.button("💾 Save Changes", use_container_width=True):
                 st.session_state.user_name = name
+                
+                # Handle image upload
                 if uploaded_file is not None:
-                    # In a real implementation, you would save the file and update the profile pic
-                    st.info("📁 Image upload feature coming soon! Using emoji for now.")
-                st.session_state.user_profile_pic = new_pic if new_pic else "👤"
+                    # Convert uploaded file to base64
+                    bytes_data = uploaded_file.getvalue()
+                    base64_image = base64.b64encode(bytes_data).decode()
+                    mime_type = uploaded_file.type
+                    st.session_state.user_profile_pic = f"data:{mime_type};base64,{base64_image}"
+                elif new_pic and not new_pic.startswith('data:image'):
+                    # Use emoji if provided
+                    st.session_state.user_profile_pic = new_pic if new_pic else "👤"
+                
                 st.success("✅ Profile updated successfully!")
                 time.sleep(1)
                 st.rerun()
