@@ -327,65 +327,55 @@ st.markdown(f"""
         background: transparent !important;
     }}
     
-    /* HIDE ALL STREAMLIT BUTTONS IN SIDEBAR */
-    [data-testid="stSidebar"] button {{
-        display: none !important;
-    }}
-    
-    /* CLICKABLE SIDEBAR ITEMS - NO BUTTON STYLING */
-    .sidebar-nav-item {{
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.9rem 1.3rem;
+    /* STYLE NAVIGATION BUTTONS AS CLEAN LABELS */
+    [data-testid="stSidebar"] .stButton {{
         margin: 0.3rem 0.8rem;
-        border-radius: 10px;
-        color: {theme_colors['text_secondary']};
-        font-size: 0.95rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border-left: 3px solid transparent;
-        user-select: none;
     }}
     
-    .sidebar-nav-item:hover {{
-        background: {theme_colors['sidebar_nav_hover']};
-        color: {theme_colors['text_accent']};
-        border-left-color: #8b5cf6;
-        transform: translateX(2px);
-        filter: brightness(1.1);
+    [data-testid="stSidebar"] .stButton > button {{
+        width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        border-left: 3px solid transparent !important;
+        border-radius: 10px !important;
+        color: {theme_colors['text_secondary']} !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+        padding: 0.9rem 1.3rem !important;
+        text-align: left !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease !important;
+        justify-content: flex-start !important;
     }}
     
-    .sidebar-nav-item.active {{
-        background: linear-gradient(90deg, rgba(139, 92, 246, 0.15), transparent);
-        color: {theme_colors['text_accent']};
-        border-left-color: #8b5cf6;
-        font-weight: 600;
+    [data-testid="stSidebar"] .stButton > button:hover {{
+        background: {theme_colors['sidebar_nav_hover']} !important;
+        color: {theme_colors['text_accent']} !important;
+        border-left-color: #8b5cf6 !important;
+        transform: translateX(2px) !important;
+        filter: brightness(1.1) !important;
+        box-shadow: none !important;
     }}
     
-    /* THEME TOGGLE - SIMPLE LABEL STYLE */
-    .theme-toggle {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.9rem 1.3rem;
-        margin: 0.3rem 0.8rem;
-        border-radius: 10px;
-        color: {theme_colors['text_secondary']};
-        font-size: 0.95rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border-left: 3px solid transparent;
+    [data-testid="stSidebar"] .stButton > button:active,
+    [data-testid="stSidebar"] .stButton > button:focus {{
+        background: linear-gradient(90deg, rgba(139, 92, 246, 0.15), transparent) !important;
+        color: {theme_colors['text_accent']} !important;
+        border-left-color: #8b5cf6 !important;
+        box-shadow: none !important;
+        outline: none !important;
     }}
     
-    .theme-toggle:hover {{
-        background: {theme_colors['sidebar_nav_hover']};
-        color: {theme_colors['text_accent']};
-        border-left-color: #8b5cf6;
-        filter: brightness(1.1);
+    /* THEME TOGGLE BUTTON STYLING */
+    [data-testid="stSidebar"] .stButton > button[kind="secondary"] {{
+        background: transparent !important;
+        border: none !important;
+        border-left: 3px solid transparent !important;
+    }}
+    
+    [data-testid="stSidebar"] .stButton > button[kind="secondary"]:hover {{
+        background: {theme_colors['sidebar_nav_hover']} !important;
+        border-left-color: #8b5cf6 !important;
     }}
     
     /* TOP USER GREETING */
@@ -964,7 +954,7 @@ with st.sidebar:
     
     st.markdown("<hr style='margin: 1rem 0; opacity: 0.3;'>", unsafe_allow_html=True)
     
-    # Navigation items - using HTML with onclick JavaScript
+    # Navigation items - clickable labels
     nav_items = [
         ("✨", "New Content", "new_content"),
         ("📁", "Saved Drafts", "history"),
@@ -972,26 +962,19 @@ with st.sidebar:
         ("👤", "Profile", "profile"),
     ]
     
-    # Create invisible buttons and use JS to trigger them
+    # Create clickable navigation items
     for icon, label, page_key in nav_items:
         active_class = "active" if st.session_state.page == page_key else ""
         
-        # Use columns to create a clickable area
-        col = st.container()
-        with col:
-            st.markdown(f'''
-                <div class="sidebar-nav-item {active_class}" 
-                     onclick="document.getElementById('btn_{page_key}').click()">
-                    {icon} <span>{label}</span>
-                </div>
-            ''', unsafe_allow_html=True)
-            
-            # Hidden button for actual navigation
-            if st.button(f"{label}", key=f"btn_{page_key}", help=f"Go to {label}"):
-                st.session_state.page = page_key
-                if page_key == "new_content":
-                    st.session_state.step = "input"
-                st.rerun()
+        # Create a container for each nav item
+        nav_container = st.container()
+        
+        # Check if this item was clicked
+        if st.button(f"{icon} {label}", key=f"nav_{page_key}", use_container_width=True):
+            st.session_state.page = page_key
+            if page_key == "new_content":
+                st.session_state.step = "input"
+            st.rerun()
     
     st.markdown("<hr style='margin: 2rem 0 1rem 0; opacity: 0.3;'>", unsafe_allow_html=True)
     
@@ -999,14 +982,7 @@ with st.sidebar:
     theme_icon = "🌙" if st.session_state.theme == "dark" else "☀️"
     theme_text = "Light Mode" if st.session_state.theme == "dark" else "Dark Mode"
     
-    st.markdown(f'''
-        <div class="theme-toggle" 
-             onclick="document.getElementById('theme_toggle_btn').click()">
-            {theme_icon} {theme_text}
-        </div>
-    ''', unsafe_allow_html=True)
-    
-    if st.button("Toggle", key="theme_toggle_btn", help="Toggle theme"):
+    if st.button(f"{theme_icon} {theme_text}", key="theme_toggle_btn", use_container_width=True):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
     
