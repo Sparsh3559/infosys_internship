@@ -13,157 +13,172 @@ st.set_page_config(
 )
 
 # -----------------------------------
-# HIDE SIDEBAR & HEADER
+# THEME COLORS (DARK MODE ONLY)
 # -----------------------------------
-st.markdown("""
-<style>
-[data-testid="stSidebar"] { display: none; }
-[data-testid="stSidebarNav"] { display: none; }
-header[data-testid="stHeader"] { display: none; }
-</style>
-""", unsafe_allow_html=True)
+theme_colors = {
+    "bg_primary": "#0f1117",
+    "bg_secondary": "#1a1d29",
+    "bg_tertiary": "#13151f",
+    "bg_card": "rgba(31, 41, 55, 0.4)",
+    "bg_card_hover": "rgba(31, 41, 55, 0.6)",
+    "border_color": "rgba(255, 255, 255, 0.08)",
+    "border_hover": "rgba(139, 92, 246, 0.3)",
+    "text_primary": "#e5e7eb",
+    "text_secondary": "#9ca3af",
+    "text_tertiary": "#6b7280",
+    "text_accent": "#c4b5fd",
+    "input_bg": "rgba(31, 41, 55, 0.5)",
+}
 
 # -----------------------------------
-# LOAD BACKGROUND IMAGE
-# -----------------------------------
-def load_bg_image(relative_path):
-    try:
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        image_path = os.path.normpath(os.path.join(base_dir, "..", relative_path))
-        
-        if not os.path.exists(image_path):
-            alt_paths = [
-                os.path.join(base_dir, relative_path),
-                os.path.join(os.getcwd(), relative_path),
-            ]
-            
-            for alt_path in alt_paths:
-                if os.path.exists(alt_path):
-                    image_path = alt_path
-                    break
-            else:
-                return None
-        
-        with open(image_path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
-    except Exception as e:
-        return None
-
-bg_image = load_bg_image("assets/bg_copy.jpg")
-
-# -----------------------------------
-# MODERN UNIFIED STYLING
+# MODERN UNIFIED STYLING - MATCHING CONTENT STUDIO
 # -----------------------------------
 st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 * {{
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }}
 
-html, body, [data-testid="stApp"] {{
-    {f'''background:
-        linear-gradient(rgba(10,10,20,0.88), rgba(10,10,20,0.88)),
-        url("data:image/jpg;base64,{bg_image}");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;''' if bg_image else 'background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);'}
-    color: #e5e7eb;
-    margin: 0;
-    padding: 0;
+/* THEME BASE */
+html, body, [data-testid="stApp"], [data-testid="stAppViewContainer"] {{
+    background: {theme_colors['bg_primary']} !important;
+    color: {theme_colors['text_primary']} !important;
 }}
+
+/* HIDE SIDEBAR & HEADER */
+[data-testid="stSidebar"] {{ display: none !important; }}
+[data-testid="stSidebarNav"] {{ display: none !important; }}
+header[data-testid="stHeader"] {{ display: none !important; }}
 
 .block-container {{
-    max-width: 520px;
-    padding-top: 4rem;
+    max-width: 540px;
+    padding-top: 3rem;
     margin: auto;
 }}
 
-/* REGISTER CARD */
+/* REGISTER CARD - MATCHING CONTENT STUDIO STYLE */
 .register-box {{
-    background: rgba(17, 24, 39, 0.75);
-    backdrop-filter: blur(22px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 22px;
-    padding: 2.8rem;
-    box-shadow: 0 25px 70px rgba(0,0,0,0.55);
+    background: {theme_colors['bg_card']};
+    backdrop-filter: blur(20px);
+    border: 1px solid {theme_colors['border_color']};
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}}
+
+.register-box:hover {{
+    border-color: {theme_colors['border_hover']};
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.15);
+    background: {theme_colors['bg_card_hover']};
+}}
+
+/* HEADER */
+.register-header {{
+    text-align: center;
+    margin-bottom: 2rem;
+}}
+
+.register-icon {{
+    font-size: 3rem;
+    margin-bottom: 1rem;
 }}
 
 .register-title {{
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
-    text-align: center;
-    margin-bottom: 0.4rem;
-    background: linear-gradient(135deg, #a5b4fc, #c4b5fd);
+    background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
+    margin: 0 0 0.5rem 0;
 }}
 
 .register-subtitle {{
-    text-align: center;
-    color: #9ca3af;
-    margin-bottom: 2rem;
+    color: {theme_colors['text_secondary']};
     font-size: 0.95rem;
+    margin-bottom: 2rem;
+}}
+
+/* FEATURE PILLS */
+.feature-pills {{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 1.5rem 0 2rem 0;
+    flex-wrap: wrap;
+}}
+
+.feature-pill {{
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: {theme_colors['text_accent']};
+    font-weight: 500;
 }}
 
 /* INPUT LABELS */
 .stTextInput > label {{
-    color: #e5e7eb !important;
+    color: {theme_colors['text_secondary']} !important;
     font-weight: 500 !important;
+    font-size: 0.9rem !important;
     margin-bottom: 0.5rem !important;
 }}
 
 /* INPUT FIELDS */
 .stTextInput input {{
-    background: rgba(15, 23, 42, 0.9) !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
-    border-radius: 14px !important;
-    padding: 15px !important;
-    color: #e5e7eb !important;
-    font-size: 15px !important;
+    background: {theme_colors['input_bg']} !important;
+    border: 1.5px solid {theme_colors['border_color']} !important;
+    border-radius: 12px !important;
+    color: {theme_colors['text_primary']} !important;
+    padding: 0.85rem 1rem !important;
+    font-size: 0.95rem !important;
+    transition: all 0.25s ease !important;
 }}
 
 .stTextInput input::placeholder {{
-    color: #6b7280 !important;
+    color: {theme_colors['text_tertiary']} !important;
 }}
 
 .stTextInput input:focus {{
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.25) !important;
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
     outline: none !important;
 }}
 
-/* UNIFIED GRADIENT BUTTONS */
-.stButton button {{
-    background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
-    border: none !important;
-    border-radius: 14px !important;
-    padding: 14px !important;
-    font-weight: 600 !important;
-    font-size: 16px !important;
-    width: 100%;
+/* UNIFIED GRADIENT BUTTONS - MATCHING CONTENT STUDIO */
+.stButton button, .stDownloadButton button {{
+    background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #f97316 100%) !important;
     color: white !important;
-    box-shadow: 0 10px 30px rgba(99,102,241,0.4);
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 0.85rem 2rem !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
     transition: all 0.3s ease !important;
-    cursor: pointer !important;
+    box-shadow: 0 4px 20px rgba(167, 139, 250, 0.3) !important;
+    width: 100%;
 }}
 
-.stButton button:hover {{
+.stButton button:hover, .stDownloadButton button:hover {{
     transform: translateY(-2px) !important;
-    box-shadow: 0 15px 40px rgba(99,102,241,0.5) !important;
+    box-shadow: 0 8px 30px rgba(167, 139, 250, 0.5) !important;
+    filter: brightness(1.1) !important;
 }}
 
-.stButton button:active {{
-    transform: translateY(0px) !important;
+.stButton button:active, .stDownloadButton button:active {{
+    transform: translateY(0) !important;
 }}
 
-/* BENEFITS SECTION */
+/* BENEFITS CARD */
 .benefits-card {{
-    background: rgba(31, 41, 55, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    background: {theme_colors['bg_card']};
+    border: 1px solid {theme_colors['border_color']};
+    border-radius: 12px;
     padding: 1.5rem;
     margin: 1.5rem 0;
 }}
@@ -172,8 +187,8 @@ html, body, [data-testid="stApp"] {{
     display: flex;
     align-items: center;
     gap: 12px;
-    color: #d1d5db;
-    font-size: 14px;
+    color: {theme_colors['text_secondary']};
+    font-size: 0.9rem;
     margin-bottom: 12px;
     padding: 8px 0;
 }}
@@ -187,82 +202,82 @@ html, body, [data-testid="stApp"] {{
     min-width: 24px;
 }}
 
-/* FEATURE PILLS */
-.feature-pills {{
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 2rem 0 1.5rem 0;
-    flex-wrap: wrap;
-}}
-
-.feature-pill {{
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    border-radius: 20px;
-    padding: 6px 14px;
-    font-size: 12px;
-    color: #a5b4fc;
-    font-weight: 500;
-}}
-
-/* FOOTER */
+/* FOOTER SECTION */
 .footer-section {{
     text-align: center;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     padding-top: 1.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid {theme_colors['border_color']};
 }}
 
 .footer-text {{
-    color: #9ca3af;
-    font-size: 14px;
+    color: {theme_colors['text_secondary']};
+    font-size: 0.9rem;
     margin-bottom: 1rem;
 }}
 
 /* SUCCESS/WARNING/ERROR MESSAGES */
-.stAlert {{
+.stSuccess, .stInfo, .stWarning, .stError {{
+    background: {theme_colors['bg_card']} !important;
     border-radius: 12px !important;
-    backdrop-filter: blur(10px);
-    margin: 1rem 0 !important;
+    border-left: 4px solid #8b5cf6 !important;
 }}
 
 .stSuccess {{
     background: rgba(34, 197, 94, 0.15) !important;
-    border: 1px solid rgba(34, 197, 94, 0.3) !important;
-    color: #86efac !important;
+    border-left-color: #22c55e !important;
 }}
 
 .stWarning {{
     background: rgba(251, 191, 36, 0.15) !important;
-    border: 1px solid rgba(251, 191, 36, 0.3) !important;
-    color: #fde047 !important;
+    border-left-color: #fbbf24 !important;
 }}
 
 .stError {{
     background: rgba(239, 68, 68, 0.15) !important;
-    border: 1px solid rgba(239, 68, 68, 0.3) !important;
-    color: #fca5a5 !important;
+    border-left-color: #ef4444 !important;
 }}
 
 .stInfo {{
     background: rgba(59, 130, 246, 0.15) !important;
-    border: 1px solid rgba(59, 130, 246, 0.3) !important;
-    color: #93c5fd !important;
+    border-left-color: #3b82f6 !important;
 }}
 
 /* SPINNER */
 .stSpinner > div {{
-    border-top-color: #6366f1 !important;
+    border-top-color: #8b5cf6 !important;
 }}
 
 /* DIVIDER */
 hr {{
     border: none;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
     margin: 2rem 0;
 }}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {{
+    width: 10px;
+    height: 10px;
+}}
+
+::-webkit-scrollbar-track {{
+    background: rgba(31, 41, 55, 0.3);
+}}
+
+::-webkit-scrollbar-thumb {{
+    background: rgba(139, 92, 246, 0.5);
+    border-radius: 5px;
+}}
+
+::-webkit-scrollbar-thumb:hover {{
+    background: rgba(139, 92, 246, 0.7);
+}}
+
+/* HIDE STREAMLIT BRANDING */
+#MainMenu {{visibility: hidden;}}
+footer {{visibility: hidden;}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -276,8 +291,13 @@ API_BASE = "https://infosys-internship-backend.onrender.com"
 # -----------------------------------
 st.markdown('<div class="register-box">', unsafe_allow_html=True)
 
-st.markdown('<div class="register-title">Create Your Account</div>', unsafe_allow_html=True)
-st.markdown('<div class="register-subtitle">Join AI Content Studio and start creating</div>', unsafe_allow_html=True)
+st.markdown("""
+    <div class="register-header">
+        <div class="register-icon">✨</div>
+        <div class="register-title">Create Your Account</div>
+        <div class="register-subtitle">Join AI Content Studio and start creating amazing content</div>
+    </div>
+""", unsafe_allow_html=True)
 
 # Feature Pills
 st.markdown("""
