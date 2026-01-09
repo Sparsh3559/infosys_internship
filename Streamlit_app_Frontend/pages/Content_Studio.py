@@ -318,22 +318,48 @@ st.markdown(f"""
         display: none !important;
     }}
     
+    /* HIDE SIDEBAR COLLAPSE BUTTON */
+    [data-testid="collapsedControl"] {{
+        display: none !important;
+    }}
+    
+    button[kind="header"] {{
+        display: none !important;
+    }}
+    
+    [data-testid="stSidebarCollapsedControl"] {{
+        display: none !important;
+    }}
+    
     /* SIDEBAR STYLING */
     [data-testid="stSidebar"] {{
         background: linear-gradient(180deg, {theme_colors['bg_secondary']} 0%, {theme_colors['bg_tertiary']} 100%) !important;
         border-right: 1px solid {theme_colors['border_color']} !important;
+        display: block !important;
+        visibility: visible !important;
     }}
     
     [data-testid="stSidebar"] > div:first-child {{
         background: transparent !important;
+        display: block !important;
+        visibility: visible !important;
+    }}
+    
+    [data-testid="stSidebar"] [data-testid="stSidebarContent"] {{
+        display: block !important;
+        visibility: visible !important;
     }}
     
     /* STYLE NAVIGATION BUTTONS AS CLEAN LABELS */
     [data-testid="stSidebar"] .stButton {{
         margin: 0.3rem 0.8rem;
+        display: block !important;
+        visibility: visible !important;
     }}
     
     [data-testid="stSidebar"] .stButton > button {{
+        display: block !important;
+        visibility: visible !important;
         width: 100% !important;
         background: transparent !important;
         border: none !important;
