@@ -921,7 +921,7 @@ with st.sidebar:
     theme_text = "Light Mode" if st.session_state.theme == "dark" else "Dark Mode"
     
     st.markdown(f'<div class="theme-toggle">{theme_icon} {theme_text}</div>', unsafe_allow_html=True)
-    if st.button("Toggle Theme", key="theme_toggle_btn", label_visibility="collapsed"):
+    if st.button("Toggle Theme", key="theme_toggle_btn"):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
     
