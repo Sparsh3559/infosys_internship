@@ -1150,8 +1150,9 @@ Return JSON: {{"prompt1": {{"title": "...", "prompt": "..."}}, "prompt2": {{"tit
                             st.session_state.generated_prompts = [prompts_data["prompt1"], prompts_data["prompt2"]]
                             st.session_state.step = "prompt_selection"
                             st.rerun()
-                        except:
-                            st.error("❌ Failed to generate prompts. Please try again.")
+                        except Exception as e:
+                            print(e)
+                            pass
                     else:
                         st.error("❌ Connection error. Please check your API settings.")
     
