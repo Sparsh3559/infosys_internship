@@ -1092,11 +1092,6 @@ def render_progress_bar():
             </div>
         """, unsafe_allow_html=True)
     
-    st.markdown("""
-            </div>55
-        </div>
-    """, unsafe_allow_html=True)
-
 # -------------------------------
 # TEMPLATE SAVE MODAL
 # -------------------------------
