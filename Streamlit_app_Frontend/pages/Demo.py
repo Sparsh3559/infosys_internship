@@ -11,6 +11,21 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# Hide sidebar completely
+st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        display: none !important;
+    }
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+    section[data-testid="stSidebar"] {
+        display: none !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # -------------------------------
 # SESSION STATE INITIALIZATION
 # -------------------------------
@@ -478,7 +493,7 @@ st.markdown(f"""
 
 col_final = st.columns([1, 2, 1])
 with col_final[1]:
-    if st.button("🎉 Get Started Now", key="final_cta"):
+    if st.button("🎉 Get Started Free - No Credit Card Required", key="final_cta"):
         st.switch_page("pages/Register.py")
 
 # Footer
