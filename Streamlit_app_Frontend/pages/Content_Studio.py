@@ -1093,7 +1093,7 @@ def render_progress_bar():
         """, unsafe_allow_html=True)
     
     st.markdown("""
-            </div>
+            </div>55
         </div>
     """, unsafe_allow_html=True)
 

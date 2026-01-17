@@ -453,7 +453,7 @@ with col3:
         st.switch_page("pages/Register.py")
 with col4:
     if st.button("Demo", key="nav_demo", use_container_width=True):
-        st.switch_page("pages/Content_Studio.py")
+        st.switch_page("pages/Demo.py")
 
 # Additional CSS for nav buttons styling
 st.markdown("""
@@ -648,7 +648,7 @@ st.markdown("""
 col1, col2, col3 = st.columns([1, 1, 1])
 with col2:
     if st.button("Start Free Trial", key="footer_cta", use_container_width=True):
-        st.switch_page("pages/Register.py")
+        st.switch_page("pages/Demo.py")
 
 # -------------------------------
 # FOOTER
