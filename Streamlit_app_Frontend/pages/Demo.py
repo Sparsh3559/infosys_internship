@@ -493,7 +493,7 @@ st.markdown(f"""
 
 col_final = st.columns([1, 2, 1])
 with col_final[1]:
-    if st.button("🎉 Get Started Free - No Credit Card Required", key="final_cta"):
+    if st.button("🎉 Get Started Free", key="final_cta"):
         st.switch_page("pages/Register.py")
 
 # Footer

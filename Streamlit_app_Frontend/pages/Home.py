@@ -641,7 +641,7 @@ st.markdown("""
 st.markdown("""
     <div class="cta-section">
         <h2 class="cta-title">Join the Future of Content Creation</h2>
-        <p class="cta-text">Start creating amazing content today. No credit card required.</p>
+        <p class="cta-text">Start creating amazing content today.</p>
     </div>
 """, unsafe_allow_html=True)
 
