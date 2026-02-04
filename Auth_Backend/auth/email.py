@@ -58,5 +58,9 @@ def send_magic_link(email: str, link: str, purpose: str):
         "from": FROM_EMAIL,
         "to": email,
         "subject": subject,
-        "html": html
+        "html": html,
+          
+        "click_tracking": False,
+        "open_tracking": False
+
     })

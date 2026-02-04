@@ -48,7 +48,7 @@ def register(name: str, email: str, db: Session = Depends(get_db)):
     db.commit()
 
     token = create_magic_token(email, "verify")
-    verify_link = f"{FRONTEND_URL}/verify?token={token}"
+    verify_link = f"{APP_URL}/verify?token={token}"
 
     send_magic_link(email, verify_link, "verify")
 
